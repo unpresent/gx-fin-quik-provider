@@ -16,7 +16,8 @@ public class QuikProviderSettings {
     public static final String BUFFER_SIZE = "buffer_size";
     public static final String ATTEMPTS_ON_CONNECT = "attempts_on_connect";
     public static final String PAUSE_MS_ON_CONNECT = "pause_ms_on_connect";
-    public static final String PAUSE_MS_ON_RELOAD = "pause_ms_on_reload";
+    public static final String WAIT_MS_ON_STOP = "wait_ms_on_stop";
+    public static final String MIN_TIME_MS_PER_ITERATION = "min_time_ms_per_iteration";
     public static final String INTERVAL_MS_MANDATORY_READ_STATE = "interval_ms_mandatory_read_state";
     public static final String TIMEOUT_DATA_READ = "timeout_data_read";
 
@@ -34,7 +35,8 @@ public class QuikProviderSettings {
         setSetting(BUFFER_SIZE, 32 * 1024);
         setSetting(ATTEMPTS_ON_CONNECT, 10);
         setSetting(PAUSE_MS_ON_CONNECT, 3000);
-        setSetting(PAUSE_MS_ON_RELOAD, 500);
+        setSetting(WAIT_MS_ON_STOP, 1000);
+        setSetting(MIN_TIME_MS_PER_ITERATION, 50);
         setSetting(INTERVAL_MS_MANDATORY_READ_STATE, 5000);
         setSetting(TIMEOUT_DATA_READ, 10000);
     }
@@ -69,8 +71,12 @@ public class QuikProviderSettings {
         return (Integer)this.getSetting(PAUSE_MS_ON_CONNECT);
     }
 
-    public int getPauseMsOnReload() {
-        return (Integer)this.getSetting(PAUSE_MS_ON_RELOAD);
+    public int getWaitMsOnStop() {
+        return (Integer)this.getSetting(WAIT_MS_ON_STOP);
+    }
+
+    public int getMinTimeMsPerIteration() {
+        return (Integer)this.getSetting(MIN_TIME_MS_PER_ITERATION);
     }
 
     public int getIntervalMsMandatoryReadState() {

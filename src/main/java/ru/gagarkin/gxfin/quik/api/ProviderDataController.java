@@ -2,7 +2,7 @@ package ru.gagarkin.gxfin.quik.api;
 
 import ru.gagarkin.gxfin.gate.quik.errors.QuikConnectorException;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
-import ru.gagarkin.gxfin.quik.events.AbstractProviderDataEvent;
+import ru.gagarkin.gxfin.quik.events.ProviderIterationExecuteEvent;
 
 import java.io.IOException;
 
@@ -12,14 +12,8 @@ import java.io.IOException;
  * @author Vladimir Gagarkin
  * @since 1.0
  */
-public interface ProviderDataController<E extends AbstractProviderDataEvent> {
-    /**
-     * Обработчик команды о чтении
-     * @param event команда о чтении
-     */
-    void onEvent(E event) throws ProviderException, IOException, QuikConnectorException;
+public interface ProviderDataController {
+    void load(ProviderIterationExecuteEvent iterationExecuteEvent) throws ProviderException, IOException, QuikConnectorException;
 
-    boolean needReload();
-
-    AbstractProviderDataEvent createEvent(Object source);
+    void clean();
 }

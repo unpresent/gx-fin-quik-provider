@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import ru.gagarkin.gxfin.quik.api.Provider;
-import ru.gagarkin.gxfin.quik.api.ProviderDemonController;
 import ru.gagarkin.gxfin.quik.api.ProviderLifeController;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
 import ru.gagarkin.gxfin.quik.events.*;
@@ -12,29 +11,21 @@ import ru.gagarkin.gxfin.quik.events.*;
 @Slf4j
 public class QuikProviderLifeController implements ProviderLifeController {
     private final Provider provider;
-    private final ProviderDemonController timeoutsController;
 
     @Autowired
-    public QuikProviderLifeController(QuikProvider provider, ProviderDemonController timeoutsController) {
+    public QuikProviderLifeController(Provider provider) {
         this.provider = provider;
-        this.timeoutsController = timeoutsController;
     }
 
-    @EventListener
+    @EventListener(ProviderStartEvent.class)
     @Override
     public void onEvent(ProviderStartEvent event) {
         log.info("Starting onEvent(ProviderStartEvent event)");
-        this.provider.stop();
         this.provider.start();
-
-        if (!this.timeoutsController.isActive()) {
-            log.info("starting timeoutsController!");
-            new Thread(this.timeoutsController).start();
-        }
         log.info("Finished onEvent(ProviderStartEvent event)");
     }
 
-    @EventListener
+    @EventListener(ProviderStopEvent.class)
     @Override
     public void onEvent(ProviderStopEvent event) {
         log.info("Starting onEvent(ProviderStopEvent event)");
@@ -42,11 +33,10 @@ public class QuikProviderLifeController implements ProviderLifeController {
         log.info("Finished onEvent(ProviderStopEvent event)");
     }
 
-    @EventListener
+    @EventListener(ProviderStartWithCleanEvent.class)
     @Override
     public void onEvent(ProviderStartWithCleanEvent event) {
         log.info("Starting onEvent(ProviderStartWithCleanEvent event)");
-        this.provider.stop();
         try {
             this.provider.clean();
         } catch (ProviderException e) {
@@ -57,7 +47,7 @@ public class QuikProviderLifeController implements ProviderLifeController {
         log.info("Finished onEvent(ProviderStartWithCleanEvent event)");
     }
 
-    @EventListener
+    @EventListener(ProviderStopWithCleanEvent.class)
     @Override
     public void onEvent(ProviderStopWithCleanEvent event) {
         log.info("Starting onEvent(ProviderStopWithCleanEvent event)");
@@ -71,7 +61,7 @@ public class QuikProviderLifeController implements ProviderLifeController {
         log.info("Finished onEvent(ProviderStopWithCleanEvent event)");
     }
 
-    @EventListener
+    @EventListener(ProviderCleanEvent.class)
     @Override
     public void onEvent(ProviderCleanEvent event) {
         log.info("Starting onEvent(ProviderCleanEvent event)");

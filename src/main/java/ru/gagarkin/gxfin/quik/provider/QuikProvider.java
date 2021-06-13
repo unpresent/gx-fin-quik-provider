@@ -2,183 +2,126 @@ package ru.gagarkin.gxfin.quik.provider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
+import ru.gagarkin.gxfin.common.worker.AbstractIterationExecuteEvent;
+import ru.gagarkin.gxfin.common.worker.AbstractWorker;
 import ru.gagarkin.gxfin.gate.quik.connector.QuikConnector;
 import ru.gagarkin.gxfin.quik.api.Provider;
 import ru.gagarkin.gxfin.quik.api.ProviderDataController;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
+import ru.gagarkin.gxfin.quik.events.ProviderIterationExecuteEvent;
 import ru.gagarkin.gxfin.quik.events.ProviderSettingsChangedEvent;
 
-/**
- * Провайдер. Основное назначение:
- * Запуск Runner-а, DemonController-а
- * @author Vladimir Gagarkin
- * @since 1.0
- */
+import java.util.List;
+
 @Slf4j
-public class QuikProvider implements Provider {
+public class QuikProvider extends AbstractWorker implements Provider {
+    // -----------------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="Fields">
+    @Autowired
+    private QuikProviderSettings settings;
+
+    @Autowired
+    private QuikConnector connector;
+
+    @Autowired
+    private List<ProviderDataController> dataControllers;
+    // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Settings">
-    /**
-     * Корень имени NamedPipe-а
-     */
-    private String quikPipeName;
-
-    /**
-     * Размера буферов (одинаковый) для входящих и исходящих сообщений
-     */
-    private int bufferSize;
-
-    /**
-     * Установка всех Setting-ов из контроллера Setting-ов
-     */
-    private void resetSettings() {
-        this.quikPipeName = this.settings.getQuikPipeName();
-        this.bufferSize = this.settings.getBufferSize();
-    }
-
-    /**
-     * Обработка события об измении установки в контролере Setting-ов
-     * @param event само событие, содержит название Setting-а
-     */
     @EventListener
     public void onEventChangedSettings(ProviderSettingsChangedEvent event) {
-        switch (event.getSettingName()) {
-            case QuikProviderSettings.QUIK_PIPE_NAME:
-                this.quikPipeName = this.settings.getQuikPipeName();
-                break;
-            case QuikProviderSettings.BUFFER_SIZE:
-                this.bufferSize = this.settings.getBufferSize();
-                break;
-            case QuikProviderSettings.ALL:
-                resetSettings();
-                break;
-            default:
-                break;
-        }
+        log.info("onEventChangedSettings({})", event.getSettingName());
+    }
+
+    @Override
+    protected int getMinTimePerIterationMs() {
+        return this.settings.getMinTimeMsPerIteration();
+    }
+
+    @Override
+    protected int getTimoutRunnerLifeMs() {
+        return this.settings.getTimeoutDataRead();
+    }
+
+    @Override
+    public int getWaitOnStopMS() {
+        return this.settings.getWaitMsOnStop();
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="Fields & Properties">
-    private final ApplicationContext context;
 
-    /**
-     * Контролер управления настройками
-     */
-    private final QuikProviderSettings settings;
-
-    /**
-     * Runner - бесконечный цикл в потоке, в котором оркестрируются команды к DataController-ам
-     */
-    private final QuikProviderRunner runner;
-
-    /**
-     * Последний момент времени начала работы какого-либо чтения.
-     * Каждый DataController передначалом чтения из NamedPipe-а должен зарегистрировать факт старта.
-     * Требуется для целей контроля таймаута (если pipe не будет отвечать за отведенное время, то Demon снимет runner-а)
-     * Требуется для целей контроля таймаута (если pipe не будет отвечать за отведенное время, то Demon снимет runner-а)
-     */
-    private volatile long lastExecutionStarted = -1;
-
-    @Override
-    public QuikConnector getConnector()  {
-        return this.runner.getConnector();
-    }
-    // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="Initialization">
-    @Autowired
-    public QuikProvider(ApplicationContext context, QuikProviderSettings settings) {
-        this.context = context;
-        this.settings = settings;
-        resetSettings();
-        var connector = new QuikConnector(this.quikPipeName, this.bufferSize);
-        this.runner = new QuikProviderRunner(this.context, connector, this.settings);
+    public QuikProvider() {
+        super(QuikProvider.class.getSimpleName());
     }
 
     @Override
-    public void registerDataController(ProviderDataController controller) {
-        this.runner.registerDataController(controller);
+    protected AbstractIterationExecuteEvent createIterationExecuteEvent() {
+        return new ProviderIterationExecuteEvent(this);
     }
 
-    @Override
-    public void unRegisterDataController(ProviderDataController controller) {
-        this.runner.unRegisterDataController(controller);
-    }
-    // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="Main functional">
-    @Override
-    public void start() {
-        log.info("Starting start()");
-        new Thread(this.runner).start();
-        // runner.run();
-        log.info("Finished start()");
-    }
-
-    @Override
-    public void stop() {
-        log.info("Starting stop()");
-        this.runner.stop();
+    @EventListener(ProviderIterationExecuteEvent.class)
+    public void iterationExecute(ProviderIterationExecuteEvent event) {
         try {
-            Thread.sleep(100);
-            var worker = this.runner.getWorker();
-            if (worker != null) {
-                log.info("runner.getWorker().interrupt()!");
-                worker.interrupt();
-            };
-            var connector = this.runner.getConnector();
-            if (connector != null && connector.isActive()) {
-                log.info("runner.getConnector().disconnect()!");
-                connector.disconnect();
-            };
+            if (!internalCheckConnected(event)) {
+                event.setImmediateRunNextIteration(true);
+                return;
+            }
+
+            for (var dataController : this.dataControllers) {
+                runnerIsLifeSet();
+                dataController.load(event);
+            }
+
+            if (!event.isImmediateRunNextIteration()) {
+                runnerIsLifeSet();
+                Thread.sleep(settings.getMinTimeMsPerIteration());
+            }
         } catch (Exception e) {
-            log.error(e.getMessage());
-            log.error(e.getStackTrace().toString());
+            internalTreatmentExceptionOnDataRead(event, e);
         }
-        log.info("Finished stop()");
     }
 
     @Override
     public void clean() throws ProviderException {
-        if (runner.isRunning()) {
-            log.warn("Недопустимо событие Clean при работающем Provider-е!");
-            throw new ProviderException("Недопустимо событие Clean при работающем Provider-е!");
+        for (var dataController : this.dataControllers) {
+            runnerIsLifeSet();
+            dataController.clean();
         }
     }
-    // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="Fields">
 
-    @Override
-    public void registerStartExecution() {
-        this.lastExecutionStarted = System.currentTimeMillis();
+    protected boolean internalCheckConnected(ProviderIterationExecuteEvent event) {
+        if (!this.connector.isActive()) {
+            try {
+                var n = this.settings.getAttemptsOnConnect();
+                for (var i = 0; i < n; i++) {
+                    if (!isRunning()) {
+                        return false;
+                    }
+
+                    if (this.connector.tryConnect()) {
+                        log.info("Provider connected!");
+                        return true;
+                    }
+
+                    Thread.sleep(this.settings.getPauseMsOnConnect());
+                }
+                return false;
+            } catch (Exception e) {
+                internalTreatmentExceptionOnDataRead(event, e);
+                return false;
+            }
+        }
+        return true;
     }
 
-    @Override
-    public void registerFinishExecution() throws ProviderException {
-        if (this.lastExecutionStarted > 0) {
-            this.lastExecutionStarted = -1;
+    private void internalTreatmentExceptionOnDataRead(ProviderIterationExecuteEvent event, Exception e) {
+        log.error(e.getMessage());
+        log.error(e.getStackTrace().toString());
+        if (e instanceof InterruptedException) {
+            event.setStopExecution(true);
         } else {
-            log.warn("Недопустимо выполнение registerFinishExecution() при отсутствии регистрации выполнения");
-            throw new ProviderException("Недопустимо выполнение registerFinishExecution() при отсутствии регистрации выполнения!");
+            event.setNeedRestart(true);
         }
     }
-
-    public long getPassedSinceLastStart() {
-        var now = System.currentTimeMillis();
-        return this.lastExecutionStarted > 0 ? now - this.lastExecutionStarted : -1;
-    }
-
-    @Override
-    public boolean needRestart() {
-        return this.runner.isNeedRestart();
-    }
-
-    @Override
-    public void close() {
-        stop();
-    }
-
 }

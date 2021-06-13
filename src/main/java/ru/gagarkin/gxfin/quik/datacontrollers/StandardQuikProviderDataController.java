@@ -3,38 +3,39 @@ package ru.gagarkin.gxfin.quik.datacontrollers;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.gagarkin.gxfin.gate.quik.connector.QuikConnector;
 import ru.gagarkin.gxfin.gate.quik.dto.StandardPackage;
 import ru.gagarkin.gxfin.gate.quik.errors.QuikConnectorException;
 import ru.gagarkin.gxfin.quik.api.Provider;
 import ru.gagarkin.gxfin.quik.api.ProviderDataController;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
-import ru.gagarkin.gxfin.quik.events.AbstractProviderDataEvent;
+import ru.gagarkin.gxfin.quik.events.ProviderIterationExecuteEvent;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 /**
  * Шаблон реализации контролера чтения стандартного потока данных
- * @param <E> тип события-команды о чтении пакета данных
  * @param <P> тип пакета данных
  */
 @Slf4j
-abstract class StandardQuikProviderDataController<E extends AbstractProviderDataEvent, P extends StandardPackage>
-        implements ProviderDataController<E>, Closeable {
+abstract class StandardQuikProviderDataController<P extends StandardPackage>
+        implements ProviderDataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields & Properties">
     /**
      * Ссылка на сам Провайдер, получаем в конструкторе
      */
+    @Autowired
     @Getter(AccessLevel.PROTECTED)
-    private final Provider provider;
+    private Provider provider;
 
     /**
      * Ссылка на коннектор, получаем из провайдера
      */
+    @Autowired
     @Getter(AccessLevel.PROTECTED)
-    private final QuikConnector connector;
+    private QuikConnector connector;
 
     /**
      * Индекс (который этой записи присвоил Quik) последней записи, прочитанной из Quik-а
@@ -69,10 +70,8 @@ abstract class StandardQuikProviderDataController<E extends AbstractProviderData
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Initialization">
-    public StandardQuikProviderDataController(Provider provider) {
+    public StandardQuikProviderDataController() {
         super();
-        this.provider = provider;
-        this.connector = provider.getConnector();
         this.lastIndex = -1;
         this.allCount = 0;
     }
@@ -80,14 +79,6 @@ abstract class StandardQuikProviderDataController<E extends AbstractProviderData
     public void init(int packageSize, int intervalWaitOnNextLoad) {
         this.packageSize = packageSize;
         this.intervalWaitOnNextLoad = intervalWaitOnNextLoad;
-        this.provider.registerDataController(this);
-    }
-    // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="Implementation Closeable">
-    @Override
-    public void close() throws IOException {
-        this.provider.unRegisterDataController(this);
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
@@ -118,17 +109,19 @@ abstract class StandardQuikProviderDataController<E extends AbstractProviderData
     protected abstract P getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException, ProviderException;
 
     /**
-     * Обработка события-команды на необходимость чтения пакета данных
-     * @param event команда о чтении
+     * Обработка команды на чтение пакета данных
      * @throws ProviderException
      * @throws IOException
      * @throws QuikConnectorException
      */
     @Override
-    public void onEvent(E event) throws ProviderException, IOException, QuikConnectorException {
+    public void load(ProviderIterationExecuteEvent iterationExecuteEvent) throws ProviderException, IOException, QuikConnectorException {
         if (this.needReload()) {
             var thePackage = this.getPackage(this.getLastIndex() + 1, this.getPackageSize());
             proceedPackage(thePackage);
+            if (!iterationExecuteEvent.isImmediateRunNextIteration() && needReload()) {
+                iterationExecuteEvent.setImmediateRunNextIteration(true);
+            }
         }
     }
 
@@ -138,20 +131,16 @@ abstract class StandardQuikProviderDataController<E extends AbstractProviderData
      * или прошло достаточно времени (см. intervalWaitOnNextLoad) с момента последнего чтения
      * @return true - надо прочитать данные прям сейчас
      */
-    @Override
     public boolean needReload() {
         var now = System.currentTimeMillis();
         return (this.allCount - 1 > this.lastIndex || now - this.lastReadedMilliseconds > this.intervalWaitOnNextLoad);
     }
-    // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="Additional">
-    /**
-     * Используется в Runnner-е для создания события-команды
-     * @param source объект-источник для события
-     * @return событие-команда
-     */
-    public abstract E createEvent(Object source);
+
+    @Override
+    public void clean() {
+        this.lastIndex = -1;
+        this.allCount = 0;
+    }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
 }
