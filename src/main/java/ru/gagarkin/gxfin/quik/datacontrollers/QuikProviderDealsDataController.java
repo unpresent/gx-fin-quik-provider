@@ -1,10 +1,14 @@
 package ru.gagarkin.gxfin.quik.datacontrollers;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import ru.gagarkin.gxfin.gate.quik.dto.AllTradesPackage;
 import ru.gagarkin.gxfin.gate.quik.dto.DealsPackage;
 import ru.gagarkin.gxfin.gate.quik.errors.QuikConnectorException;
-import ru.gagarkin.gxfin.quik.api.Provider;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
 
 import java.io.IOException;
@@ -15,11 +19,22 @@ import java.io.IOException;
 @Slf4j
 public class QuikProviderDealsDataController
         extends StandardQuikProviderDataController<DealsPackage> {
+    @Autowired
+    private OutcomeTopic outcomeTopicQuikDeals;
 
     @Autowired
-    public QuikProviderDealsDataController(Provider provider) {
+    @Getter(AccessLevel.PROTECTED)
+    private KafkaTemplate<Long, DealsPackage> kafkaTemplate;
+
+    @Autowired
+    public QuikProviderDealsDataController() {
         super();
         this.init(25, 500);
+    }
+
+    @Override
+    protected String outcomeTopicName() {
+        return this.outcomeTopicQuikDeals.name();
     }
 
     @Override
@@ -28,5 +43,11 @@ public class QuikProviderDealsDataController
         if (result.rows.length > 0)
             log.info("settleDate = {}", result.rows[0].settleDate);
         return result;
+    }
+
+    public static class OutcomeTopic extends NewTopic {
+        public OutcomeTopic(String name, int numPartitions, short replicationFactor) {
+            super(name, numPartitions, replicationFactor);
+        }
     }
 }

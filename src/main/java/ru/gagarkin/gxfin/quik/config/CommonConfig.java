@@ -9,6 +9,7 @@ import ru.gagarkin.gxfin.quik.api.ProviderDataController;
 import ru.gagarkin.gxfin.quik.datacontrollers.QuikProviderAllTradesDataController;
 import ru.gagarkin.gxfin.quik.datacontrollers.QuikProviderDealsDataController;
 import ru.gagarkin.gxfin.quik.datacontrollers.QuikProviderOrdersDataController;
+import ru.gagarkin.gxfin.quik.datacontrollers.QuikProviderSessionStateDataController;
 import ru.gagarkin.gxfin.quik.provider.QuikProvider;
 import ru.gagarkin.gxfin.quik.provider.QuikProviderLifeController;
 import ru.gagarkin.gxfin.quik.provider.QuikProviderSettings;
@@ -35,18 +36,38 @@ public class CommonConfig {
     }
 
     @Bean
-    @Autowired
-    public List<ProviderDataController> providerDataControllers(Provider provider) {
-        var result = new ArrayList<ProviderDataController>();
-        result.add(new QuikProviderAllTradesDataController(provider));
-        result.add(new QuikProviderDealsDataController(provider));
-        result.add(new QuikProviderOrdersDataController(provider));
-        return result;
+    public QuikProviderLifeController providerLifeController() {
+        return new QuikProviderLifeController();
     }
 
     @Bean
-    @Autowired
-    public QuikProviderLifeController providerLifeController(Provider provider) {
-        return new QuikProviderLifeController(provider);
+    public QuikProviderAllTradesDataController quikProviderAllTradesDataController() {
+        return new QuikProviderAllTradesDataController();
+    }
+
+    @Bean
+    public QuikProviderDealsDataController quikProviderDealsDataController() {
+        return new QuikProviderDealsDataController();
+    }
+
+    @Bean
+    public QuikProviderOrdersDataController quikProviderOrdersDataController() {
+        return new QuikProviderOrdersDataController();
+    }
+
+    @Bean
+    public QuikProviderSessionStateDataController quikProviderSessionStateDataController() {
+        return new QuikProviderSessionStateDataController();
+    }
+
+    @SuppressWarnings("SpringConfigurationProxyMethods")
+    @Bean
+    public List<ProviderDataController> providerDataControllers() {
+        var result = new ArrayList<ProviderDataController>();
+        result.add(quikProviderAllTradesDataController());
+        result.add(quikProviderDealsDataController());
+        result.add(quikProviderOrdersDataController());
+        result.add(quikProviderSessionStateDataController());
+        return result;
     }
 }

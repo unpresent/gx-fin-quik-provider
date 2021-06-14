@@ -10,11 +10,10 @@ import ru.gagarkin.gxfin.quik.events.*;
 
 @Slf4j
 public class QuikProviderLifeController implements ProviderLifeController {
-    private final Provider provider;
-
     @Autowired
-    public QuikProviderLifeController(Provider provider) {
-        this.provider = provider;
+    private Provider provider;
+
+    public QuikProviderLifeController() {
     }
 
     @EventListener(ProviderStartEvent.class)

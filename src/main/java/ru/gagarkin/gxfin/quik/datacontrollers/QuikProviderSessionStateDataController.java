@@ -14,6 +14,7 @@ import ru.gagarkin.gxfin.quik.errors.ProviderException;
 import ru.gagarkin.gxfin.quik.events.ProviderIterationExecuteEvent;
 import ru.gagarkin.gxfin.quik.provider.QuikProviderSettings;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 /**
@@ -50,6 +51,16 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
     @Autowired
     public QuikProviderSessionStateDataController() {
         super();
+    }
+
+    @PostConstruct
+    public void postInit() {
+        if (this.provider == null) {
+            log.error("this.provider == null");
+        }
+        if (this.connector == null) {
+            log.error("this.connector == null");
+        }
     }
 
     @Override

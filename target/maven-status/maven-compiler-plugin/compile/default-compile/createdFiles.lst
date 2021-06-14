@@ -1,12 +1,16 @@
 ru\gagarkin\gxfin\quik\datacontrollers\QuikProviderAllTradesDataController.class
+ru\gagarkin\gxfin\quik\datacontrollers\QuikProviderAllTradesDataController$OutcomeTopic.class
 ru\gagarkin\gxfin\quik\events\ProviderStopWithCleanEvent.class
 ru\gagarkin\gxfin\quik\config\ProdConfig.class
 ru\gagarkin\gxfin\quik\config\TestConfig.class
+ru\gagarkin\gxfin\quik\datacontrollers\QuikProviderDealsDataController$OutcomeTopic.class
 ru\gagarkin\gxfin\quik\datacontrollers\QuikProviderSessionStateDataController.class
 ru\gagarkin\gxfin\quik\events\ProviderStartEvent.class
 ru\gagarkin\gxfin\quik\provider\QuikProviderSettings.class
 ru\gagarkin\gxfin\quik\api\ProviderDataController.class
+ru\gagarkin\gxfin\quik\config\KafkaProducerConfig.class
 ru\gagarkin\gxfin\quik\Application.class
+ru\gagarkin\gxfin\quik\datacontrollers\QuikProviderOrdersDataController$OutcomeTopic.class
 ru\gagarkin\gxfin\quik\datacontrollers\StandardQuikProviderDataController.class
 ru\gagarkin\gxfin\quik\provider\QuikProvider.class
 ru\gagarkin\gxfin\quik\events\ProviderStopEvent.class
@@ -14,6 +18,7 @@ ru\gagarkin\gxfin\quik\api\Provider.class
 ru\gagarkin\gxfin\quik\events\ProviderCleanEvent.class
 ru\gagarkin\gxfin\quik\config\CommonConfig.class
 ru\gagarkin\gxfin\quik\errors\ProviderException.class
+ru\gagarkin\gxfin\quik\config\KafkaTopicConfig.class
 ru\gagarkin\gxfin\quik\datacontrollers\QuikProviderOrdersDataController.class
 ru\gagarkin\gxfin\quik\api\ProviderLifeController.class
 ru\gagarkin\gxfin\quik\config\DevConfig.class

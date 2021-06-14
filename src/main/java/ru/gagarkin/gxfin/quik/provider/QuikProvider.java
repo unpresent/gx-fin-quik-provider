@@ -1,11 +1,14 @@
 package ru.gagarkin.gxfin.quik.provider;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import ru.gagarkin.gxfin.common.worker.AbstractIterationExecuteEvent;
 import ru.gagarkin.gxfin.common.worker.AbstractWorker;
 import ru.gagarkin.gxfin.gate.quik.connector.QuikConnector;
+import ru.gagarkin.gxfin.gate.quik.dto.AllTradesPackage;
 import ru.gagarkin.gxfin.quik.api.Provider;
 import ru.gagarkin.gxfin.quik.api.ProviderDataController;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
@@ -62,9 +65,11 @@ public class QuikProvider extends AbstractWorker implements Provider {
 
     @EventListener(ProviderIterationExecuteEvent.class)
     public void iterationExecute(ProviderIterationExecuteEvent event) {
+        log.debug("Starting iterationExecute()");
         try {
+            runnerIsLifeSet();
+
             if (!internalCheckConnected(event)) {
-                event.setImmediateRunNextIteration(true);
                 return;
             }
 
@@ -79,6 +84,8 @@ public class QuikProvider extends AbstractWorker implements Provider {
             }
         } catch (Exception e) {
             internalTreatmentExceptionOnDataRead(event, e);
+        } finally {
+            log.debug("Finished iterationExecute()");
         }
     }
 
@@ -94,11 +101,13 @@ public class QuikProvider extends AbstractWorker implements Provider {
         if (!this.connector.isActive()) {
             try {
                 var n = this.settings.getAttemptsOnConnect();
+                log.info("Starting (" + n + ") attempts for connector.tryConnect()");
                 for (var i = 0; i < n; i++) {
                     if (!isRunning()) {
                         return false;
                     }
 
+                    runnerIsLifeSet();
                     if (this.connector.tryConnect()) {
                         log.info("Provider connected!");
                         return true;
@@ -110,6 +119,8 @@ public class QuikProvider extends AbstractWorker implements Provider {
             } catch (Exception e) {
                 internalTreatmentExceptionOnDataRead(event, e);
                 return false;
+            } finally {
+                log.info("Finished attempts for connector.tryConnect()");
             }
         }
         return true;
@@ -119,8 +130,10 @@ public class QuikProvider extends AbstractWorker implements Provider {
         log.error(e.getMessage());
         log.error(e.getStackTrace().toString());
         if (e instanceof InterruptedException) {
+            log.info("event.setStopExecution(true)");
             event.setStopExecution(true);
         } else {
+            log.info("event.setNeedRestart(true)");
             event.setNeedRestart(true);
         }
     }
