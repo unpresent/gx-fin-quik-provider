@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import ru.gagarkin.gxfin.gate.quik.connector.QuikConnector;
-import ru.gagarkin.gxfin.gate.quik.dto.StandardPackage;
+import ru.gagarkin.gxfin.gate.quik.data.internal.StandardDataPackage;
 import ru.gagarkin.gxfin.gate.quik.errors.QuikConnectorException;
 import ru.gagarkin.gxfin.quik.api.Provider;
 import ru.gagarkin.gxfin.quik.api.ProviderDataController;
@@ -21,7 +21,7 @@ import java.io.IOException;
  * @param <P> тип пакета данных
  */
 @Slf4j
-abstract class StandardQuikProviderDataController<P extends StandardPackage>
+abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
         implements ProviderDataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields & Properties">
@@ -110,9 +110,9 @@ abstract class StandardQuikProviderDataController<P extends StandardPackage>
      */
     protected synchronized void proceedPackage(P standardPackage) {
         var allCountChanged = false;
-        var n = standardPackage.rows.length;
+        var n = standardPackage.size();
         if (n > 0) {
-            this.lastIndex = standardPackage.rows[n - 1].rowIndex;
+            this.lastIndex = standardPackage.getItem(n - 1).rowIndex;
         }
         if (this.allCount != standardPackage.allCount) {
             this.allCount = standardPackage.allCount;

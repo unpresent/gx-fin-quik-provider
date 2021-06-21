@@ -1,14 +1,11 @@
 package ru.gagarkin.gxfin.quik.provider;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import ru.gagarkin.gxfin.common.worker.AbstractIterationExecuteEvent;
 import ru.gagarkin.gxfin.common.worker.AbstractWorker;
 import ru.gagarkin.gxfin.gate.quik.connector.QuikConnector;
-import ru.gagarkin.gxfin.gate.quik.dto.AllTradesPackage;
 import ru.gagarkin.gxfin.quik.api.Provider;
 import ru.gagarkin.gxfin.quik.api.ProviderDataController;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
@@ -22,7 +19,7 @@ public class QuikProvider extends AbstractWorker implements Provider {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields">
     @Autowired
-    private QuikProviderSettings settings;
+    private QuikProviderSettingsController settings;
 
     @Autowired
     private QuikConnector connector;
@@ -39,17 +36,17 @@ public class QuikProvider extends AbstractWorker implements Provider {
 
     @Override
     protected int getMinTimePerIterationMs() {
-        return this.settings.getMinTimeMsPerIteration();
+        return this.settings.getMinTimePerIterationMs();
     }
 
     @Override
     protected int getTimoutRunnerLifeMs() {
-        return this.settings.getTimeoutDataRead();
+        return this.settings.getTimeoutLifeMs();
     }
 
     @Override
     public int getWaitOnStopMS() {
-        return this.settings.getWaitMsOnStop();
+        return this.settings.getWaitOnStopMs();
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
@@ -80,7 +77,7 @@ public class QuikProvider extends AbstractWorker implements Provider {
 
             if (!event.isImmediateRunNextIteration()) {
                 runnerIsLifeSet();
-                Thread.sleep(settings.getMinTimeMsPerIteration());
+                Thread.sleep(settings.getMinTimePerIterationMs());
             }
         } catch (Exception e) {
             internalTreatmentExceptionOnDataRead(event, e);
@@ -113,7 +110,7 @@ public class QuikProvider extends AbstractWorker implements Provider {
                         return true;
                     }
 
-                    Thread.sleep(this.settings.getPauseMsOnConnect());
+                    Thread.sleep(this.settings.getPauseOnConnectMs());
                 }
                 return false;
             } catch (Exception e) {

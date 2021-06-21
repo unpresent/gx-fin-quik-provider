@@ -13,9 +13,6 @@ public class QuikProviderLifeController implements ProviderLifeController {
     @Autowired
     private Provider provider;
 
-    public QuikProviderLifeController() {
-    }
-
     @EventListener(ProviderStartEvent.class)
     @Override
     public void onEvent(ProviderStartEvent event) {

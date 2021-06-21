@@ -6,13 +6,14 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.gagarkin.gxfin.gate.quik.connector.QuikConnector;
-import ru.gagarkin.gxfin.gate.quik.dto.SessionState;
+import ru.gagarkin.gxfin.gate.quik.data.internal.SessionState;
 import ru.gagarkin.gxfin.gate.quik.errors.QuikConnectorException;
 import ru.gagarkin.gxfin.quik.api.Provider;
 import ru.gagarkin.gxfin.quik.api.ProviderDataController;
+import ru.gagarkin.gxfin.quik.api.ProviderSettingsController;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
 import ru.gagarkin.gxfin.quik.events.ProviderIterationExecuteEvent;
-import ru.gagarkin.gxfin.quik.provider.QuikProviderSettings;
+import ru.gagarkin.gxfin.quik.provider.QuikProviderSettingsController;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -24,7 +25,7 @@ import java.io.IOException;
 public class QuikProviderSessionStateDataController implements ProviderDataController {
     @Autowired
     @Getter(AccessLevel.PROTECTED)
-    private QuikProviderSettings settings;
+    private ProviderSettingsController settings;
 
     /**
      * Ссылка на сам Провайдер, получаем в конструкторе
@@ -69,10 +70,10 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
             return;
         }
 
-        var sessionState = this.connector.getSessionState();
+        var quikSessionState = this.connector.getSessionState();
         setLastReadedSessionStateMs(System.currentTimeMillis());
-        setLastSessionState(sessionState);
-        log.info("Loaded sessionState (isConnected = {}, serverTime = {})", sessionState.isConnected, sessionState.serverTime);
+        setLastSessionState(new SessionState(quikSessionState));
+        log.info("Loaded sessionState (isConnected = {}, serverTime = {})", quikSessionState.isConnected, quikSessionState.serverTime);
     }
 
 
@@ -82,7 +83,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
      */
     public boolean needReload() {
         var now = System.currentTimeMillis();
-        return (now - this.getLastReadedSessionStateMs() > this.settings.getIntervalMsMandatoryReadState());
+        return (now - this.getLastReadedSessionStateMs() > this.settings.getIntervalMandatoryReadStateMs());
     }
 
     @Override

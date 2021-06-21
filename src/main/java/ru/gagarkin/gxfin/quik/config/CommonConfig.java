@@ -6,13 +6,14 @@ import org.springframework.context.annotation.Bean;
 import ru.gagarkin.gxfin.gate.quik.connector.QuikConnector;
 import ru.gagarkin.gxfin.quik.api.Provider;
 import ru.gagarkin.gxfin.quik.api.ProviderDataController;
+import ru.gagarkin.gxfin.quik.api.ProviderSettingsController;
 import ru.gagarkin.gxfin.quik.datacontrollers.QuikProviderAllTradesDataController;
 import ru.gagarkin.gxfin.quik.datacontrollers.QuikProviderDealsDataController;
 import ru.gagarkin.gxfin.quik.datacontrollers.QuikProviderOrdersDataController;
 import ru.gagarkin.gxfin.quik.datacontrollers.QuikProviderSessionStateDataController;
 import ru.gagarkin.gxfin.quik.provider.QuikProvider;
 import ru.gagarkin.gxfin.quik.provider.QuikProviderLifeController;
-import ru.gagarkin.gxfin.quik.provider.QuikProviderSettings;
+import ru.gagarkin.gxfin.quik.provider.QuikProviderSettingsController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +21,13 @@ import java.util.List;
 public class CommonConfig {
     @Bean
     @Autowired
-    public QuikProviderSettings quikProviderSettings(ApplicationContext context) {
-        return new QuikProviderSettings(context);
+    public ProviderSettingsController quikProviderSettings(ApplicationContext context) {
+        return new QuikProviderSettingsController(context);
     }
 
     @Bean
     @Autowired
-    public QuikConnector connector(QuikProviderSettings settings) {
+    public QuikConnector connector(ProviderSettingsController settings) {
         return new QuikConnector(settings.getQuikPipeName(), settings.getBufferSize());
     }
 

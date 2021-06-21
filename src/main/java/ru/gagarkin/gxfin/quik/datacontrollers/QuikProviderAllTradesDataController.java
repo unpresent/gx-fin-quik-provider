@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
-import ru.gagarkin.gxfin.gate.quik.dto.AllTradesPackage;
+import ru.gagarkin.gxfin.gate.quik.data.internal.AllTradesPackage;
 import ru.gagarkin.gxfin.gate.quik.errors.QuikConnectorException;
 import ru.gagarkin.gxfin.quik.errors.ProviderException;
 
@@ -36,11 +36,10 @@ public class QuikProviderAllTradesDataController
         return this.outcomeTopicQuikAllTrades.name();
     }
 
-
-
     @Override
     protected AllTradesPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException, ProviderException {
-        return this.getConnector().getAllTradesPackage(lastIndex, packageSize);
+        var quikPackage = this.getConnector().getAllTradesPackage(lastIndex, packageSize);
+        return new AllTradesPackage(quikPackage);
     }
 
     public static class OutcomeTopic extends NewTopic {
