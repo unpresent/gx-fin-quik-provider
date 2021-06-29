@@ -97,7 +97,7 @@ public class QuikProvider extends AbstractWorker implements Provider {
     protected boolean internalCheckConnected(ProviderIterationExecuteEvent event) {
         if (!this.connector.isActive()) {
             try {
-                var n = this.settings.getAttemptsOnConnect();
+                final var n = this.settings.getAttemptsOnConnect();
                 log.info("Starting (" + n + ") attempts for connector.tryConnect()");
                 for (var i = 0; i < n; i++) {
                     if (!isRunning()) {

@@ -70,7 +70,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
             return;
         }
 
-        var quikSessionState = this.connector.getSessionState();
+        final var quikSessionState = this.connector.getSessionState();
         setLastReadedSessionStateMs(System.currentTimeMillis());
         setLastSessionState(new SessionState(quikSessionState));
         log.info("Loaded sessionState (isConnected = {}, serverTime = {})", quikSessionState.isConnected, quikSessionState.serverTime);
@@ -82,7 +82,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
      * @return true - надо прочитать данные прям сейчас
      */
     public boolean needReload() {
-        var now = System.currentTimeMillis();
+        final var now = System.currentTimeMillis();
         return (now - this.getLastReadedSessionStateMs() > this.settings.getIntervalMandatoryReadStateMs());
     }
 

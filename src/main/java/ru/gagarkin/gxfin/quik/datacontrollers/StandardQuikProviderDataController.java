@@ -110,7 +110,7 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
      */
     protected synchronized void proceedPackage(P standardPackage) {
         var allCountChanged = false;
-        var n = standardPackage.size();
+        final var n = standardPackage.size();
         if (n > 0) {
             this.lastIndex = standardPackage.getItem(n - 1).rowIndex;
         }
@@ -121,7 +121,7 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
         this.lastReadMilliseconds = System.currentTimeMillis();
         log.info("Loaded {}, packageSize = {}, lastIndex = {} / allCount = {}", standardPackage.getClass().getSimpleName(), n, this.lastIndex, this.allCount);
 
-        var kafkaTemplate = this.getKafkaTemplate();
+        final var kafkaTemplate = this.getKafkaTemplate();
         if (kafkaTemplate != null && (allCountChanged || n > 0)) {
             kafkaTemplate.send(outcomeTopicName(), standardPackage);
         }
@@ -147,7 +147,7 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
     @Override
     public void load(ProviderIterationExecuteEvent iterationExecuteEvent) throws ProviderException, IOException, QuikConnectorException {
         if (this.needReload()) {
-            var thePackage = this.getPackage(this.getLastIndex() + 1, this.getPackageSize());
+            final var thePackage = this.getPackage(this.getLastIndex() + 1, this.getPackageSize());
             proceedPackage(thePackage);
             if (!iterationExecuteEvent.isImmediateRunNextIteration() && needReload()) {
                 iterationExecuteEvent.setImmediateRunNextIteration(true);
@@ -162,7 +162,7 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
      * @return true - надо прочитать данные прям сейчас
      */
     public boolean needReload() {
-        var now = System.currentTimeMillis();
+        final var now = System.currentTimeMillis();
         return (this.allCount - 1 > this.lastIndex || now - this.lastReadMilliseconds > this.intervalWaitOnNextLoad);
     }
 

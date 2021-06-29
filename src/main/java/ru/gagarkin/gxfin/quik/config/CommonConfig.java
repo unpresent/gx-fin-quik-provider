@@ -64,7 +64,7 @@ public class CommonConfig {
     @SuppressWarnings("SpringConfigurationProxyMethods")
     @Bean
     public List<ProviderDataController> providerDataControllers() {
-        var result = new ArrayList<ProviderDataController>();
+        final var result = new ArrayList<ProviderDataController>();
         result.add(quikProviderAllTradesDataController());
         result.add(quikProviderDealsDataController());
         result.add(quikProviderOrdersDataController());

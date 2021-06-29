@@ -3,6 +3,7 @@ package ru.gagarkin.gxfin.quik.provider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import ru.gagarkin.gxfin.common.settings.AbstractSettingsController;
 import ru.gagarkin.gxfin.quik.api.ProviderSettingsController;
 
@@ -13,18 +14,18 @@ public class QuikProviderSettingsController extends AbstractSettingsController i
         super(context);
 
         // TODO: Переписать на чтение настроек
-        setSetting(QUIK_PIPE_NAME, "C-QUIK_VTB-");
-        setSetting(BUFFER_SIZE, 32 * 1024);
-        setSetting(ATTEMPTS_ON_CONNECT, 20);
-        setSetting(PAUSE_ON_CONNECT_MS, 3000);
-        setSetting(WAIT_ON_STOP_MS, 1000);
-        setSetting(MIN_TIME_PER_ITERATION_MS, 50);
-        setSetting(INTERVAL_MANDATORY_READ_STATE_MS, 5000);
-        setSetting(TIMEOUT_LIFE_MS, 10000);
+        loadStringSetting(QUIK_PIPE_NAME);
+        loadIntegerSetting(BUFFER_SIZE);
+        loadIntegerSetting(ATTEMPTS_ON_CONNECT);
+        loadIntegerSetting(PAUSE_ON_CONNECT_MS);
+        loadIntegerSetting(WAIT_ON_STOP_MS);
+        loadIntegerSetting(MIN_TIME_PER_ITERATION_MS);
+        loadIntegerSetting(INTERVAL_MANDATORY_READ_STATE_MS);
+        loadIntegerSetting(TIMEOUT_LIFE_MS);
 
-        setSetting(OUTCOME_TOPIC_ALLTRADES, "quikProviderAllTrades");
-        setSetting(OUTCOME_TOPIC_DEALS, "quikProviderDeals");
-        setSetting(OUTCOME_TOPIC_ORDERS, "quikProviderOrders");
+        loadStringSetting(OUTCOME_TOPIC_ALLTRADES);
+        loadStringSetting(OUTCOME_TOPIC_DEALS);
+        loadStringSetting(OUTCOME_TOPIC_ORDERS);
     }
 
     @Override

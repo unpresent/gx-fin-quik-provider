@@ -22,7 +22,7 @@ public class KafkaProducerConfig {
     @Value(value = "${kafka.server}")
     private String kafkaServer;
 
-    @Value("${kafka.producer.id}")
+    @Value("${kafka.producer_id}")
     private String kafkaProducerId;
 
     @Bean
@@ -52,21 +52,21 @@ public class KafkaProducerConfig {
 
     @Bean
     public KafkaTemplate<Long, AllTradesPackage> kafkaAllTradesTemplate() {
-        KafkaTemplate<Long, AllTradesPackage> template = new KafkaTemplate<>(producerAllTradesFactory());
+        final var template = new KafkaTemplate<>(producerAllTradesFactory());
         template.setMessageConverter(new StringJsonMessageConverter());
         return template;
     }
 
     @Bean
     public KafkaTemplate<Long, DealsPackage> kafkaDealsTemplate() {
-        KafkaTemplate<Long, DealsPackage> template = new KafkaTemplate<>(producerDealsFactory());
+        final var template = new KafkaTemplate<>(producerDealsFactory());
         template.setMessageConverter(new StringJsonMessageConverter());
         return template;
     }
 
     @Bean
     public KafkaTemplate<Long, OrdersPackage> kafkaOrdersTemplate() {
-        KafkaTemplate<Long, OrdersPackage> template = new KafkaTemplate<>(producerOrdersFactory());
+        final var template = new KafkaTemplate<>(producerOrdersFactory());
         template.setMessageConverter(new StringJsonMessageConverter());
         return template;
     }

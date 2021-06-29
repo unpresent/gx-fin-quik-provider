@@ -38,7 +38,7 @@ public class QuikProviderAllTradesDataController
 
     @Override
     protected AllTradesPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException, ProviderException {
-        var quikPackage = this.getConnector().getAllTradesPackage(lastIndex, packageSize);
+        final var quikPackage = this.getConnector().getAllTradesPackage(lastIndex, packageSize);
         return new AllTradesPackage(quikPackage);
     }
 
