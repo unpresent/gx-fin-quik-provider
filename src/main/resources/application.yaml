@@ -27,7 +27,6 @@ quik:
 kafka:
   server: localhost:9092
   group_id: quik-group
-  producer_id: quik-provider-producer
   outcome_topic:
     all_trades: quikProviderAllTrades
     deals: quikProviderDeals
