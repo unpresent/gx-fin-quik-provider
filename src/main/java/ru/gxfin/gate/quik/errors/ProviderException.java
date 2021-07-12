@@ -5,6 +5,7 @@ package ru.gxfin.gate.quik.errors;
  * @author  Vladimir Gagarkin
  * @since   1.0
  */
+@SuppressWarnings("unused")
 public class ProviderException extends Exception {
     /**
      * Constructs an {@code QuikConnectorException} with {@code null}

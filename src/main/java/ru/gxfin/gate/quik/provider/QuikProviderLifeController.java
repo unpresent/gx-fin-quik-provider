@@ -29,6 +29,7 @@ public class QuikProviderLifeController implements ProviderLifeController {
         log.info("Finished onEvent(ProviderStopEvent event)");
     }
 
+    @SuppressWarnings("ImplicitArrayToString")
     @EventListener(ProviderStartWithCleanEvent.class)
     @Override
     public void onEvent(ProviderStartWithCleanEvent event) {
@@ -43,6 +44,7 @@ public class QuikProviderLifeController implements ProviderLifeController {
         log.info("Finished onEvent(ProviderStartWithCleanEvent event)");
     }
 
+    @SuppressWarnings("ImplicitArrayToString")
     @EventListener(ProviderStopWithCleanEvent.class)
     @Override
     public void onEvent(ProviderStopWithCleanEvent event) {
@@ -57,6 +59,7 @@ public class QuikProviderLifeController implements ProviderLifeController {
         log.info("Finished onEvent(ProviderStopWithCleanEvent event)");
     }
 
+    @SuppressWarnings("ImplicitArrayToString")
     @EventListener(ProviderCleanEvent.class)
     @Override
     public void onEvent(ProviderCleanEvent event) {

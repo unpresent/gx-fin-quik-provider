@@ -1,16 +1,12 @@
 package ru.gxfin.gate.quik.events;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import org.springframework.context.ApplicationEvent;
 
 /**
  * Событие-сигнал о необходимости перезапустить провайдер
  * @since 1.0
  */
-@ToString
-@EqualsAndHashCode(callSuper = false)
 public class ProviderStartEvent extends ApplicationEvent {
 
     /**
@@ -23,10 +19,4 @@ public class ProviderStartEvent extends ApplicationEvent {
         super(source);
         forceStart = false;
     }
-
-    public ProviderStartEvent(Object source, boolean forceStart) {
-        super(source);
-        this.forceStart = forceStart;
-    }
-
 }

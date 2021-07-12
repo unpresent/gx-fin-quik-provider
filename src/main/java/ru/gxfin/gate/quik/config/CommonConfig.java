@@ -6,11 +6,9 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import ru.gxfin.gate.quik.connector.QuikConnector;
-import ru.gxfin.gate.quik.api.Provider;
 import ru.gxfin.gate.quik.api.ProviderDataController;
-import ru.gxfin.gate.quik.api.ProviderLifeController;
 import ru.gxfin.gate.quik.api.ProviderSettingsController;
+import ru.gxfin.gate.quik.connector.QuikConnector;
 import ru.gxfin.gate.quik.datacontrollers.*;
 import ru.gxfin.gate.quik.provider.QuikProvider;
 import ru.gxfin.gate.quik.provider.QuikProviderLifeController;
@@ -29,7 +27,7 @@ public class CommonConfig {
     @SneakyThrows
     @Bean
     @Autowired
-    public ProviderSettingsController quikProviderSettings(ApplicationContext context) {
+    public QuikProviderSettingsController quikProviderSettings(ApplicationContext context) {
         return new QuikProviderSettingsController(context);
     }
 
@@ -40,12 +38,12 @@ public class CommonConfig {
     }
 
     @Bean
-    public Provider provider() {
+    public QuikProvider provider() {
         return new QuikProvider();
     }
 
     @Bean
-    public ProviderLifeController providerLifeController() {
+    public QuikProviderLifeController providerLifeController() {
         return new QuikProviderLifeController();
     }
 

@@ -7,11 +7,11 @@ import ru.gxfin.common.worker.AbstractIterationExecuteEvent;
 import ru.gxfin.common.worker.AbstractStartingExecuteEvent;
 import ru.gxfin.common.worker.AbstractStoppingExecuteEvent;
 import ru.gxfin.common.worker.AbstractWorker;
-import ru.gxfin.gate.quik.connector.QuikConnector;
-import ru.gxfin.gate.quik.events.ProviderSettingsChangedEvent;
 import ru.gxfin.gate.quik.api.Provider;
 import ru.gxfin.gate.quik.api.ProviderDataController;
+import ru.gxfin.gate.quik.connector.QuikConnector;
 import ru.gxfin.gate.quik.events.ProviderIterationExecuteEvent;
+import ru.gxfin.gate.quik.events.ProviderSettingsChangedEvent;
 import ru.gxfin.gate.quik.events.ProviderStartingExecuteEvent;
 import ru.gxfin.gate.quik.events.ProviderStoppingExecuteEvent;
 
@@ -80,8 +80,9 @@ public class QuikProvider extends AbstractWorker implements Provider {
         return new ProviderStoppingExecuteEvent(this);
     }
 
+    @SuppressWarnings("ImplicitArrayToString")
     @EventListener(ProviderStartingExecuteEvent.class)
-    public void startingExecute(ProviderStartingExecuteEvent event) {
+    public void startingExecute() {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
@@ -90,8 +91,9 @@ public class QuikProvider extends AbstractWorker implements Provider {
         }
     }
 
+    @SuppressWarnings("ImplicitArrayToString")
     @EventListener(ProviderStoppingExecuteEvent.class)
-    public void stoppingExecute(ProviderStoppingExecuteEvent event) {
+    public void stoppingExecute() {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
@@ -109,15 +111,9 @@ public class QuikProvider extends AbstractWorker implements Provider {
             if (!internalCheckConnected(event)) {
                 return;
             }
-
             for (var dataController : this.dataControllers) {
                 runnerIsLifeSet();
                 dataController.load(event);
-            }
-
-            if (!event.isImmediateRunNextIteration()) {
-                runnerIsLifeSet();
-                Thread.sleep(settings.getMinTimePerIterationMs());
             }
         } catch (Exception e) {
             internalTreatmentExceptionOnDataRead(event, e);
@@ -163,6 +159,7 @@ public class QuikProvider extends AbstractWorker implements Provider {
         return true;
     }
 
+    @SuppressWarnings("ImplicitArrayToString")
     private void internalTreatmentExceptionOnDataRead(ProviderIterationExecuteEvent event, Exception e) {
         log.error(e.getMessage());
         log.error(e.getStackTrace().toString());
