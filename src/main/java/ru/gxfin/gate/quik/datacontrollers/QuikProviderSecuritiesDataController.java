@@ -3,7 +3,8 @@ package ru.gxfin.gate.quik.datacontrollers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.gxfin.gate.quik.errors.QuikConnectorException;
-import ru.gxfin.gate.quik.model.internal.SecuritiesPackage;
+import ru.gxfin.gate.quik.model.internal.QuikSecuritiesPackage;
+import ru.gxfin.gate.quik.model.internal.QuikSecurity;
 
 import java.io.IOException;
 
@@ -12,7 +13,7 @@ import java.io.IOException;
  */
 @Slf4j
 public class QuikProviderSecuritiesDataController
-        extends StandardQuikProviderDataController<SecuritiesPackage> {
+        extends StandardQuikProviderDataController<QuikSecurity, QuikSecuritiesPackage> {
     @Autowired
     public QuikProviderSecuritiesDataController() {
         super();
@@ -25,8 +26,8 @@ public class QuikProviderSecuritiesDataController
     }
 
     @Override
-    protected SecuritiesPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
+    protected QuikSecuritiesPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
         final var quikPackage = this.getConnector().getSecuritiesPackage(lastIndex, packageSize);
-        return new SecuritiesPackage(quikPackage);
+        return new QuikSecuritiesPackage(quikPackage);
     }
 }

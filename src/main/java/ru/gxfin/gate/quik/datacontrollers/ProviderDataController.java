@@ -1,4 +1,4 @@
-package ru.gxfin.gate.quik.api;
+package ru.gxfin.gate.quik.datacontrollers;
 
 import ru.gxfin.gate.quik.errors.ProviderException;
 import ru.gxfin.gate.quik.errors.QuikConnectorException;

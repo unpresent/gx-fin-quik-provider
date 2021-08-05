@@ -7,8 +7,7 @@ import ru.gxfin.common.worker.AbstractIterationExecuteEvent;
 import ru.gxfin.common.worker.AbstractStartingExecuteEvent;
 import ru.gxfin.common.worker.AbstractStoppingExecuteEvent;
 import ru.gxfin.common.worker.AbstractWorker;
-import ru.gxfin.gate.quik.api.Provider;
-import ru.gxfin.gate.quik.api.ProviderDataController;
+import ru.gxfin.gate.quik.datacontrollers.ProviderDataController;
 import ru.gxfin.gate.quik.connector.QuikConnector;
 import ru.gxfin.gate.quik.events.ProviderIterationExecuteEvent;
 import ru.gxfin.gate.quik.events.ProviderSettingsChangedEvent;
@@ -19,7 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-public class QuikProvider extends AbstractWorker implements Provider {
+public class QuikProvider extends AbstractWorker {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields">
     @Autowired
@@ -30,7 +29,6 @@ public class QuikProvider extends AbstractWorker implements Provider {
 
     @Autowired
     private List<ProviderDataController> dataControllers;
-
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Settings">
@@ -50,13 +48,13 @@ public class QuikProvider extends AbstractWorker implements Provider {
     }
 
     @Override
-    public int getWaitOnStopMS() {
+    public int getWaitOnStopMs() {
         return this.settings.getWaitOnStopMs();
     }
 
     @Override
-    public int getWaitOnRestartMS() {
-        return this.settings.getWaitOnRestartMS();
+    public int getWaitOnRestartMs() {
+        return this.settings.getWaitOnRestartMs();
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
@@ -122,7 +120,6 @@ public class QuikProvider extends AbstractWorker implements Provider {
         }
     }
 
-    @Override
     public void clean() {
         for (var dataController : this.dataControllers) {
             runnerIsLifeSet();

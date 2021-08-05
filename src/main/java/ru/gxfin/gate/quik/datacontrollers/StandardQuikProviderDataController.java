@@ -7,16 +7,15 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.gxfin.gate.quik.api.Provider;
-import ru.gxfin.gate.quik.api.ProviderDataController;
-import ru.gxfin.gate.quik.api.ProviderSettingsController;
 import ru.gxfin.gate.quik.connector.QuikConnector;
 import ru.gxfin.gate.quik.errors.ProviderException;
-import ru.gxfin.gate.quik.events.ProviderIterationExecuteEvent;
-import ru.gxfin.gate.quik.model.internal.StandardDataPackage;
 import ru.gxfin.gate.quik.errors.QuikConnectorException;
+import ru.gxfin.gate.quik.events.ProviderIterationExecuteEvent;
+import ru.gxfin.gate.quik.model.internal.QuikStandardDataObject;
+import ru.gxfin.gate.quik.model.internal.QuikStandardDataPackage;
+import ru.gxfin.gate.quik.provider.QuikProvider;
+import ru.gxfin.gate.quik.provider.QuikProviderSettingsController;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -28,7 +27,7 @@ import java.util.concurrent.ExecutionException;
  * @param <P> тип пакета данных
  */
 @Slf4j
-abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
+public abstract class StandardQuikProviderDataController<O extends QuikStandardDataObject, P extends QuikStandardDataPackage<O>>
         implements ProviderDataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields & Properties">
@@ -38,14 +37,14 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
 
     @Autowired
     @Getter(AccessLevel.PROTECTED)
-    private ProviderSettingsController settings;
+    private QuikProviderSettingsController settings;
 
     /**
      * Ссылка на сам Провайдер, получаем в конструкторе
      */
     @Autowired
     @Getter(AccessLevel.PROTECTED)
-    private Provider provider;
+    private QuikProvider provider;
 
     /**
      * Ссылка на коннектор, получаем из провайдера
@@ -77,14 +76,14 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
     private int packageSize;
 
     /**
-     * Интервал (с миллисекундах), по истечение которого надо все равно запросить данные из Quik-а
+     * Интервал (в миллисекундах), по истечение которого надо все равно запросить данные из Quik-а
      * Не запрашиваем раньше, если по нашим данным мы уже все прочитали (allCount == lastIndex + 1)
      */
     @Getter(AccessLevel.PROTECTED)
     private int intervalWaitOnNextLoad;
 
     /**
-     * Когда в полседний раз получали данные из Quik-а (System.currentTimeMillis())
+     * Когда в последний раз получали данные из Quik-а (System.currentTimeMillis())
      */
     @Getter(AccessLevel.PROTECTED)
     private long lastReadMilliseconds;
@@ -93,11 +92,6 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Settings">
     protected abstract String outcomeTopicName();
-
-    protected KafkaProducer getKafkaProducer() {
-        return this.kafkaProducer;
-    }
-
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Initialization">
@@ -121,7 +115,7 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
             log.error("this.connector == null");
         }
         if (this.getKafkaProducer() == null) {
-            log.error("this.getKafkaPoducer() == null");
+            log.error("this.getKafkaProducer() == null");
         }
     }
     // </editor-fold>
@@ -129,15 +123,14 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
     // <editor-fold desc="Main functional">
 
     /**
-     * Обработка пакета данных, полученного от Quik-а
-     *
-     * @param standardPackage
+     * Обработка пакета данных, полученного от Quik-а.
+     * @param standardPackage   Пакет данных, который обрабатываем.
      */
     protected synchronized void proceedPackage(P standardPackage) throws JsonProcessingException, ExecutionException, InterruptedException {
         var allCountChanged = false;
         final var n = standardPackage.size();
         if (n > 0) {
-            this.lastIndex = standardPackage.getItem(n - 1).rowIndex;
+            this.lastIndex = standardPackage.getObject(n - 1).getRowIndex();
         }
         if (this.allCount != standardPackage.allCount) {
             this.allCount = standardPackage.allCount;
@@ -149,28 +142,27 @@ abstract class StandardQuikProviderDataController<P extends StandardDataPackage>
         final var kafkaProducer = this.getKafkaProducer();
         if (kafkaProducer != null && (allCountChanged || n > 0)) {
             var message = objectMapper.writeValueAsString(standardPackage);
-            final var rmd = (RecordMetadata) kafkaProducer.send(new ProducerRecord<>(outcomeTopicName(), message)).get();
+            kafkaProducer.send(new ProducerRecord<>(outcomeTopicName(), message)).get();
         }
     }
 
     /**
-     * Чтение пакета данных из Quik-а (реализация наследниках)
+     * Чтение пакета данных из Quik-а (реализация в наследниках)
      *
      * @param lastIndex   индекс последней записи, полученной во время предыдущего чтения
      * @param packageSize ограничение в количество записей в пакете (указание для Quik-а)
-     * @return сам пакет записей потока данных, который контролирует данный контроллер
-     * @throws IOException
-     * @throws QuikConnectorException
-     * @throws ProviderException
+     * @return сам пакет записей потока данных, который контролирует данный контроллер.
+     * @throws IOException              Ошибки работы с NamedPipe.
+     * @throws QuikConnectorException   Ошибки работы с QuikConnector.
+     * @throws ProviderException        Ошибки самого Провайдера.
      */
     protected abstract P getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException, ProviderException;
 
     /**
-     * Обработка команды на чтение пакета данных
-     *
-     * @throws ProviderException
-     * @throws IOException
-     * @throws QuikConnectorException
+     * Обработка команды на чтение пакета данных.
+     * @throws ProviderException        Ошибки Провайдера.
+     * @throws IOException              Ошибки работы с NamedPipe.
+     * @throws QuikConnectorException   Ошибки работы с Connector-ом.
      */
     @Override
     public void load(ProviderIterationExecuteEvent iterationExecuteEvent)

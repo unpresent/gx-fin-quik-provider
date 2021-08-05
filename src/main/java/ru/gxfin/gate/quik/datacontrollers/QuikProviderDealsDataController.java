@@ -3,8 +3,9 @@ package ru.gxfin.gate.quik.datacontrollers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.gxfin.gate.quik.errors.ProviderException;
-import ru.gxfin.gate.quik.model.internal.DealsPackage;
 import ru.gxfin.gate.quik.errors.QuikConnectorException;
+import ru.gxfin.gate.quik.model.internal.QuikDeal;
+import ru.gxfin.gate.quik.model.internal.QuikDealsPackage;
 
 import java.io.IOException;
 
@@ -13,7 +14,7 @@ import java.io.IOException;
  */
 @Slf4j
 public class QuikProviderDealsDataController
-        extends StandardQuikProviderDataController<DealsPackage> {
+        extends StandardQuikProviderDataController<QuikDeal, QuikDealsPackage> {
     @Autowired
     public QuikProviderDealsDataController() {
         super();
@@ -26,8 +27,8 @@ public class QuikProviderDealsDataController
     }
 
     @Override
-    protected DealsPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException, ProviderException {
+    protected QuikDealsPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
         final var quikPackage = this.getConnector().getDealsPackage(lastIndex, packageSize);
-        return new DealsPackage(quikPackage);
+        return new QuikDealsPackage(quikPackage);
     }
 }

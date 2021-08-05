@@ -2,8 +2,9 @@ package ru.gxfin.gate.quik.datacontrollers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.gxfin.gate.quik.model.internal.AllTradesPackage;
 import ru.gxfin.gate.quik.errors.QuikConnectorException;
+import ru.gxfin.gate.quik.model.internal.QuikAllTrade;
+import ru.gxfin.gate.quik.model.internal.QuikAllTradesPackage;
 
 import java.io.IOException;
 
@@ -12,7 +13,7 @@ import java.io.IOException;
  */
 @Slf4j
 public class QuikProviderAllTradesDataController
-        extends StandardQuikProviderDataController<AllTradesPackage> {
+        extends StandardQuikProviderDataController<QuikAllTrade, QuikAllTradesPackage> {
 
     @Autowired
     public QuikProviderAllTradesDataController() {
@@ -26,8 +27,8 @@ public class QuikProviderAllTradesDataController
     }
 
     @Override
-    protected AllTradesPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
+    protected QuikAllTradesPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
         final var quikPackage = this.getConnector().getAllTradesPackage(lastIndex, packageSize);
-        return new AllTradesPackage(quikPackage);
+        return new QuikAllTradesPackage(quikPackage);
     }
 }

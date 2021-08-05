@@ -5,14 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.gxfin.gate.quik.api.Provider;
-import ru.gxfin.gate.quik.api.ProviderDataController;
-import ru.gxfin.gate.quik.api.ProviderSettingsController;
 import ru.gxfin.gate.quik.connector.QuikConnector;
 import ru.gxfin.gate.quik.errors.ProviderException;
-import ru.gxfin.gate.quik.events.ProviderIterationExecuteEvent;
-import ru.gxfin.gate.quik.model.internal.SessionState;
 import ru.gxfin.gate.quik.errors.QuikConnectorException;
+import ru.gxfin.gate.quik.events.ProviderIterationExecuteEvent;
+import ru.gxfin.gate.quik.model.internal.QuikSessionState;
+import ru.gxfin.gate.quik.provider.QuikProvider;
+import ru.gxfin.gate.quik.provider.QuikProviderSettingsController;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -24,14 +23,14 @@ import java.io.IOException;
 public class QuikProviderSessionStateDataController implements ProviderDataController {
     @Autowired
     @Getter(AccessLevel.PROTECTED)
-    private ProviderSettingsController settings;
+    private QuikProviderSettingsController settings;
 
     /**
      * Ссылка на сам Провайдер, получаем в конструкторе
      */
     @Autowired
     @Getter(AccessLevel.PROTECTED)
-    private Provider provider;
+    private QuikProvider provider;
 
     /**
      * Ссылка на коннектор, получаем из провайдера
@@ -42,7 +41,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
 
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private SessionState lastSessionState;
+    private QuikSessionState lastSessionState;
 
     @Getter
     @Setter(AccessLevel.PROTECTED)
@@ -64,14 +63,14 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
     }
 
     @Override
-    public void load(ProviderIterationExecuteEvent iterationExecuteEvent) throws ProviderException, IOException, QuikConnectorException {
+    public void load(ProviderIterationExecuteEvent iterationExecuteEvent) throws IOException, QuikConnectorException {
         if (!needReload()) {
             return;
         }
 
         final var quikSessionState = this.connector.getSessionState();
         setLastReadedSessionStateMs(System.currentTimeMillis());
-        setLastSessionState(new SessionState(quikSessionState));
+        setLastSessionState(new QuikSessionState(quikSessionState));
         log.info("Loaded sessionState (isConnected = {}, serverTime = {})", quikSessionState.isConnected(), quikSessionState.getServerTime());
     }
 
