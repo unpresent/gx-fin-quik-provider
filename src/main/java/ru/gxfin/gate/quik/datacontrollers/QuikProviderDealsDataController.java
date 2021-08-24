@@ -2,7 +2,6 @@ package ru.gxfin.gate.quik.datacontrollers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.gxfin.gate.quik.errors.ProviderException;
 import ru.gxfin.gate.quik.errors.QuikConnectorException;
 import ru.gxfin.gate.quik.model.internal.QuikDeal;
 import ru.gxfin.gate.quik.model.internal.QuikDealsPackage;

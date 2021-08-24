@@ -6,7 +6,7 @@ import org.springframework.context.event.EventListener;
 import ru.gxfin.gate.quik.events.*;
 
 /**
- * Обработка событий о запуске и останове (жизненый цикл) Провайдера
+ * Обработка событий о запуске и останове (жизненный цикл) Провайдера
  * @author Vladimir Gagarkin
  * @since 1.0
  */
@@ -20,6 +20,7 @@ public class QuikProviderLifeController {
      *
      * @param event команда о запуске провайдера
      */
+    @SuppressWarnings("unused")
     @EventListener(ProviderStartEvent.class)
     public void onEvent(ProviderStartEvent event) {
         log.info("Starting onEvent(ProviderStartEvent event)");
@@ -32,6 +33,7 @@ public class QuikProviderLifeController {
      *
      * @param event команда об остановке провайдера
      */
+    @SuppressWarnings("unused")
     @EventListener(ProviderStopEvent.class)
     public void onEvent(ProviderStopEvent event) {
         log.info("Starting onEvent(ProviderStopEvent event)");
@@ -40,28 +42,27 @@ public class QuikProviderLifeController {
     }
 
     /**
-     * Обработчик команды о запуске провайдера с очисткой снапшота
-     * @param event команда о запуске провайдера с очисткой снапшота
+     * Обработчик команды о запуске провайдера с очисткой состояния.
+     * @param event команда о запуске провайдера с очисткой состояния.
      */
-    @SuppressWarnings("ImplicitArrayToString")
+    @SuppressWarnings({"unused"})
     @EventListener(ProviderStartWithCleanEvent.class)
     public void onEvent(ProviderStartWithCleanEvent event) {
         log.info("Starting onEvent(ProviderStartWithCleanEvent event)");
         try {
             this.provider.clean();
         } catch (Exception e) {
-            log.error(e.getMessage());
-            log.error(e.getStackTrace().toString());
+            log.error("", e);
         }
         this.provider.start();
         log.info("Finished onEvent(ProviderStartWithCleanEvent event)");
     }
 
     /**
-     * Обработчик команды об остановке провайдера с очисткой снапшота
-     * @param event команда об остановке провайдера с очисткой снапшота
+     * Обработчик команды об остановке провайдера с очисткой состояния.
+     * @param event команда об остановке провайдера с очисткой состояния.
      */
-    @SuppressWarnings("ImplicitArrayToString")
+    @SuppressWarnings({"unused"})
     @EventListener(ProviderStopWithCleanEvent.class)
     public void onEvent(ProviderStopWithCleanEvent event) {
         log.info("Starting onEvent(ProviderStopWithCleanEvent event)");
@@ -69,8 +70,7 @@ public class QuikProviderLifeController {
         try {
             this.provider.clean();
         } catch (Exception e) {
-            log.error(e.getMessage());
-            log.error(e.getStackTrace().toString());
+            log.error("", e);
         }
         log.info("Finished onEvent(ProviderStopWithCleanEvent event)");
     }
@@ -79,15 +79,14 @@ public class QuikProviderLifeController {
      * Обработчик команды об очистке данных провайдера
      * @param event команда об очистке данных провайдера
      */
-    @SuppressWarnings("ImplicitArrayToString")
+    @SuppressWarnings("unused")
     @EventListener(ProviderCleanEvent.class)
     public void onEvent(ProviderCleanEvent event) {
         log.info("Starting onEvent(ProviderCleanEvent event)");
         try {
             this.provider.clean();
         } catch (Exception e) {
-            log.error(e.getMessage());
-            log.error(e.getStackTrace().toString());
+            log.error("", e);
         }
         log.info("Finished onEvent(ProviderCleanEvent event)");
     }

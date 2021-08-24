@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Событие об изменнении параметра системы
+ * Событие об изменении параметра системы.
  * @since 1.0
  */
 public class ProviderSettingsChangedEvent extends ApplicationEvent {

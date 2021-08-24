@@ -78,25 +78,21 @@ public class QuikProvider extends AbstractWorker {
         return new ProviderStoppingExecuteEvent(this);
     }
 
-    @SuppressWarnings("ImplicitArrayToString")
     @EventListener(ProviderStartingExecuteEvent.class)
     public void startingExecute() {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
-            log.error(e.getMessage());
-            log.error(e.getStackTrace().toString());
+            log.error("", e);
         }
     }
 
-    @SuppressWarnings("ImplicitArrayToString")
     @EventListener(ProviderStoppingExecuteEvent.class)
     public void stoppingExecute() {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
-            log.error(e.getMessage());
-            log.error(e.getStackTrace().toString());
+            log.error("", e);
         }
     }
 

@@ -58,7 +58,7 @@ public abstract class StandardQuikProviderDataController<O extends QuikStandardD
     private KafkaProducer<Long, String> kafkaProducer;
 
     /**
-     * Индекс (который этой записи присвоил Quik) последней записи, прочитанной из Quik-а
+     * Индекс (который этой записи присвоил Quik) последней записи, прочитанной из Quik-а.
      */
     @Getter(AccessLevel.PROTECTED)
     private long lastIndex;

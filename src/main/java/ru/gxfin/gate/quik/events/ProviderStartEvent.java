@@ -10,7 +10,7 @@ import org.springframework.context.ApplicationEvent;
 public class ProviderStartEvent extends ApplicationEvent {
 
     /**
-     * Флаг для того, чтобы стартануть, например, в выходной или ночью.
+     * Флаг для того, чтобы запустить, например, в выходной или ночью.
      */
     @Getter
     private final boolean forceStart;

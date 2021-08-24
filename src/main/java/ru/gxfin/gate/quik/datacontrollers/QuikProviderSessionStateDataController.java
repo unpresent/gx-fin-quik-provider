@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.gxfin.gate.quik.connector.QuikConnector;
-import ru.gxfin.gate.quik.errors.ProviderException;
 import ru.gxfin.gate.quik.errors.QuikConnectorException;
 import ru.gxfin.gate.quik.events.ProviderIterationExecuteEvent;
 import ru.gxfin.gate.quik.model.internal.QuikSessionState;
@@ -45,7 +44,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
 
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private long lastReadedSessionStateMs;
+    private long lastReadSessionStateMs;
 
     @Autowired
     public QuikProviderSessionStateDataController() {
@@ -69,7 +68,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
         }
 
         final var quikSessionState = this.connector.getSessionState();
-        setLastReadedSessionStateMs(System.currentTimeMillis());
+        setLastReadSessionStateMs(System.currentTimeMillis());
         setLastSessionState(new QuikSessionState(quikSessionState));
         log.info("Loaded sessionState (isConnected = {}, serverTime = {})", quikSessionState.isConnected(), quikSessionState.getServerTime());
     }
@@ -80,7 +79,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
      */
     public boolean needReload() {
         final var now = System.currentTimeMillis();
-        return (now - this.getLastReadedSessionStateMs() > this.settings.getIntervalMandatoryReadStateMs());
+        return (now - this.getLastReadSessionStateMs() > this.settings.getIntervalMandatoryReadStateMs());
     }
 
     @Override

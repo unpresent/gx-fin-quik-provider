@@ -9,7 +9,7 @@ import ru.gxfin.gate.quik.model.internal.QuikAllTradesPackage;
 import java.io.IOException;
 
 /**
- * Контролер чления анонимных сделок
+ * Контролер чтения анонимных сделок
  */
 @Slf4j
 public class QuikProviderAllTradesDataController
