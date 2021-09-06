@@ -17,7 +17,7 @@
         <gxfin-common-starter.version>1.0</gxfin-common-starter.version>
         <gxfin-quik-gateway.version>1.0</gxfin-quik-gateway.version>
 
-        <org.springframework.boot.version>2.5.0</org.springframework.boot.version>
+        <org.springframework.boot.version>2.5.1</org.springframework.boot.version>
         <org.springframework.kafka.version>2.7.0</org.springframework.kafka.version>
         <org.testcontainers.version>1.15.3</org.testcontainers.version>
 
