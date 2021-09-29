@@ -1,3 +1,6 @@
+service:
+  name: quik-provider
+
 # Логирование
 logging:
   level:
@@ -9,13 +12,13 @@ logging:
 server:
   port: 7001
 
-# provider
-provider:
+# quik-provider
+quik-provider:
   wait_on_stop_ms: 1000
   wait_on_restarts_ms: 20000
   min_time_per_iteration_ms: 50
   interval_mandatory_read_state_ms: 5000
-  timeout_life_ms: 10000
+  timeout_runner_life_ms: 10000
 
 #quik
 quik:
