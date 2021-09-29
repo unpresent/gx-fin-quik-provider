@@ -22,7 +22,7 @@ public class QuikProviderSettingsController implements SettingsController {
     String WAIT_ON_RESTART_MS = "quik-provider.wait_on_restarts_ms";
     String MIN_TIME_PER_ITERATION_MS = "quik-provider.min_time_per_iteration_ms";
     String INTERVAL_MANDATORY_READ_STATE_MS = "quik-provider.interval_mandatory_read_state_ms";
-    String TIMEOUT_LIFE_MS = "quik-provider.timeout_life_ms";
+    String TIMEOUT_RUNNER_LIFE_MS = "quik-provider.timeout_runner_life_ms";
 
     String OUTCOME_TOPIC_ALL_TRADES = "kafka.outcome_topic.all_trades";
     String OUTCOME_TOPIC_DEALS = "kafka.outcome_topic.deals";
@@ -46,7 +46,7 @@ public class QuikProviderSettingsController implements SettingsController {
         this.simpleSettingsController.loadIntegerSetting(WAIT_ON_RESTART_MS);
         this.simpleSettingsController.loadIntegerSetting(MIN_TIME_PER_ITERATION_MS);
         this.simpleSettingsController.loadIntegerSetting(INTERVAL_MANDATORY_READ_STATE_MS);
-        this.simpleSettingsController.loadIntegerSetting(TIMEOUT_LIFE_MS);
+        this.simpleSettingsController.loadIntegerSetting(TIMEOUT_RUNNER_LIFE_MS);
 
         this.simpleSettingsController.loadStringSetting(OUTCOME_TOPIC_ALL_TRADES);
         this.simpleSettingsController.loadStringSetting(OUTCOME_TOPIC_DEALS);
