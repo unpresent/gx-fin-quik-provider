@@ -2,8 +2,8 @@ package ru.gx.fin.gate.quik.datacontrollers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -14,12 +14,14 @@ import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.model.internal.QuikStandardDataObject;
 import ru.gx.fin.gate.quik.model.internal.QuikStandardDataPackage;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
-import ru.gx.fin.gate.quik.provider.QuikProviderSettingsController;
+import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.worker.SimpleIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+
+import static lombok.AccessLevel.PROTECTED;
 
 /**
  * Шаблон реализации контролера чтения стандартного потока данных
@@ -31,61 +33,61 @@ public abstract class StandardQuikProviderDataController<O extends QuikStandardD
         implements ProviderDataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields & Properties">
-    @Autowired
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private ObjectMapper objectMapper;
 
-    @Autowired
-    @Getter(AccessLevel.PROTECTED)
-    private QuikProviderSettingsController settings;
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    private QuikProviderSettingsContainer settings;
 
     /**
      * Ссылка на сам Провайдер, получаем в конструкторе
      */
-    @Autowired
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikProvider provider;
 
     /**
      * Ссылка на коннектор, получаем из провайдера
      */
-    @Autowired
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikConnector connector;
 
-    @Autowired
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private KafkaProducer<Long, String> kafkaProducer;
 
     /**
      * Индекс (который этой записи присвоил Quik) последней записи, прочитанной из Quik-а.
      */
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
     private long lastIndex;
 
     /**
      * Всего записей в данной таблице в Quik-е
      */
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
     private long allCount;
 
     /**
      * Лимит количества записей в пакете - указание для Quik-а, чтобы он в пакет нам давал не более
      */
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
     private int packageSize;
 
     /**
      * Интервал (в миллисекундах), по истечение которого надо все равно запросить данные из Quik-а
      * Не запрашиваем раньше, если по нашим данным мы уже все прочитали (allCount == lastIndex + 1)
      */
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
     private int intervalWaitOnNextLoad;
 
     /**
      * Когда в последний раз получали данные из Quik-а (System.currentTimeMillis())
      */
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
     private long lastReadMilliseconds;
 
     // </editor-fold>

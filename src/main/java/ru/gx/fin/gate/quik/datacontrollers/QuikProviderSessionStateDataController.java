@@ -1,6 +1,5 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,44 +8,45 @@ import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.model.internal.QuikSessionState;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
-import ru.gx.fin.gate.quik.provider.QuikProviderSettingsController;
+import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.worker.SimpleIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+
+import static lombok.AccessLevel.*;
 
 /**
  * Контролер чтения состояния сессии
  */
 @Slf4j
 public class QuikProviderSessionStateDataController implements ProviderDataController {
-    @Autowired
-    @Getter(AccessLevel.PROTECTED)
-    private QuikProviderSettingsController settings;
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    private QuikProviderSettingsContainer settings;
 
     /**
      * Ссылка на сам Провайдер, получаем в конструкторе
      */
-    @Autowired
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikProvider provider;
 
     /**
      * Ссылка на коннектор, получаем из провайдера
      */
-    @Autowired
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikConnector connector;
 
     @Getter
-    @Setter(AccessLevel.PROTECTED)
+    @Setter(PROTECTED)
     private QuikSessionState lastSessionState;
 
     @Getter
-    @Setter(AccessLevel.PROTECTED)
+    @Setter(PROTECTED)
     private long lastReadSessionStateMs;
 
-    @Autowired
     public QuikProviderSessionStateDataController() {
         super();
     }

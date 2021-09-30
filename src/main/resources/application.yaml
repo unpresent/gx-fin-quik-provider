@@ -1,6 +1,13 @@
 service:
   name: quik-provider
 
+# quik-provider
+quik-provider:
+  wait_on_stop_ms: 1000
+  wait_on_restarts_ms: 20000
+  min_time_per_iteration_ms: 50
+  timeout_runner_life_ms: 10000
+
 # Логирование
 logging:
   level:
@@ -12,20 +19,13 @@ logging:
 server:
   port: 7001
 
-# quik-provider
-quik-provider:
-  wait_on_stop_ms: 1000
-  wait_on_restarts_ms: 20000
-  min_time_per_iteration_ms: 50
-  interval_mandatory_read_state_ms: 5000
-  timeout_runner_life_ms: 10000
-
 #quik
 quik:
   pipe_name: C-QUIK_VTB-
   buffer_size: 32768 # 32 * 1024
   attempts_on_connect: 20
   pause_on_connect_ms: 3000
+  interval_mandatory_read_state_ms: 5000
 
 #kafka
 kafka:

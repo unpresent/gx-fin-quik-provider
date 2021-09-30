@@ -14,7 +14,6 @@ import java.io.IOException;
 @Slf4j
 public class QuikProviderSecuritiesDataController
         extends StandardQuikProviderDataController<QuikSecurity, QuikSecuritiesPackage> {
-    @Autowired
     public QuikProviderSecuritiesDataController() {
         super();
         this.init(10, 500);

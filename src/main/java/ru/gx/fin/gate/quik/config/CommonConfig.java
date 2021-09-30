@@ -2,7 +2,6 @@ package ru.gx.fin.gate.quik.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.SneakyThrows;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -10,19 +9,20 @@ import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaAdmin;
+import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.datacontrollers.*;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderLifeController;
-import ru.gx.fin.gate.quik.provider.QuikProviderSettingsController;
-import ru.gx.fin.gate.quik.connector.QuikConnector;
-import ru.gx.fin.gate.quik.datacontrollers.*;
+import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.settings.SimpleSettingsController;
 import ru.gx.worker.SimpleWorker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
 
 public class CommonConfig {
     // -----------------------------------------------------------------------------------------------------------------
@@ -39,25 +39,22 @@ public class CommonConfig {
     // <editor-fold desc="Provider & Settings">
     @Bean
     public SimpleSettingsController simpleSettingsController() {
-        return new SimpleSettingsController();
+        return new SimpleSettingsController(this.serviceName);
+    }
+
+    @Bean
+    public SimpleWorker simpleWorker() {
+        return new SimpleWorker(this.serviceName);
+    }
+
+    @Bean
+    public QuikProviderSettingsContainer quikProviderSettingsController() {
+        return new QuikProviderSettingsContainer();
     }
 
     @Bean
     @Autowired
-    public SimpleWorker simpleWorker(SimpleSettingsController simpleSettingsController) {
-        return new SimpleWorker(this.serviceName, simpleSettingsController);
-    }
-
-    @SneakyThrows
-    @Bean
-    @Autowired
-    public QuikProviderSettingsController quikProviderSettings(SimpleSettingsController simpleSettingsController) {
-        return new QuikProviderSettingsController(simpleSettingsController);
-    }
-
-    @Bean
-    @Autowired
-    public QuikConnector connector(ObjectMapper objectMapper, QuikProviderSettingsController settings) {
+    public QuikConnector connector(ObjectMapper objectMapper, QuikProviderSettingsContainer settings) {
         return new QuikConnector(objectMapper, settings.getQuikPipeName(), settings.getBufferSize());
     }
 

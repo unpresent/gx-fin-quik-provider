@@ -23,7 +23,7 @@ public class QuikProvider {
     // <editor-fold desc="Fields">
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderSettingsController settings;
+    private QuikProviderSettingsContainer settings;
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
@@ -38,11 +38,6 @@ public class QuikProvider {
     private List<ProviderDataController> dataControllers;
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
-
-    public QuikProvider() {
-    }
-
-
     @EventListener(SimpleStartingExecuteEvent.class)
     public void startingExecute(SimpleStartingExecuteEvent __) {
         try {

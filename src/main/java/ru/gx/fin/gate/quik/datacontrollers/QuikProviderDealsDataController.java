@@ -14,7 +14,6 @@ import java.io.IOException;
 @Slf4j
 public class QuikProviderDealsDataController
         extends StandardQuikProviderDataController<QuikDeal, QuikDealsPackage> {
-    @Autowired
     public QuikProviderDealsDataController() {
         super();
         this.init(25, 500);

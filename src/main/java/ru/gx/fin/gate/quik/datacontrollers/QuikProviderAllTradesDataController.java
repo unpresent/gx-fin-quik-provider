@@ -14,8 +14,6 @@ import java.io.IOException;
 @Slf4j
 public class QuikProviderAllTradesDataController
         extends StandardQuikProviderDataController<QuikAllTrade, QuikAllTradesPackage> {
-
-    @Autowired
     public QuikProviderAllTradesDataController() {
         super();
         this.init(50, 250);
