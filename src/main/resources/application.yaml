@@ -1,12 +1,17 @@
 service:
   name: quik-provider
+  simple-worker.enabled: true
+  outcome-topics:
+    simple-configuration.enabled: true
+    standard-uploader.enabled: true
+    configurator-caller.enabled: true
 
 # quik-provider
 quik-provider:
   wait_on_stop_ms: 1000
-  wait_on_restarts_ms: 20000
-  min_time_per_iteration_ms: 50
-  timeout_runner_life_ms: 10000
+  wait_on_restart_ms: 20000
+  min_time_per_iteration_ms: 1000
+  timeout_runner_life_ms: 60000
 
 # Логирование
 logging:
@@ -36,3 +41,8 @@ kafka:
     deals: quikProviderDeals
     orders: quikProviderOrders
     securities: quikProviderSecurities
+
+spring:
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false

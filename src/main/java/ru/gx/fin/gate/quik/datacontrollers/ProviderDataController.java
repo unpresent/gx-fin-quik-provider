@@ -1,11 +1,6 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
-import ru.gx.fin.gate.quik.errors.ProviderException;
-import ru.gx.fin.gate.quik.errors.QuikConnectorException;
-import ru.gx.worker.SimpleIterationExecuteEvent;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+import ru.gx.worker.SimpleOnIterationExecuteEvent;
 
 /**
  * Управление каким-то одним потоком данных:
@@ -14,7 +9,10 @@ import java.util.concurrent.ExecutionException;
  * @since 1.0
  */
 public interface ProviderDataController {
-    void load(SimpleIterationExecuteEvent iterationExecuteEvent) throws ProviderException, IOException, QuikConnectorException, ExecutionException, InterruptedException;
+    String headerKeyAllCount = "allCount";
+    String headerKeyLastIndex = "lastIndex";
+
+    void load(SimpleOnIterationExecuteEvent iterationExecuteEvent) throws Exception;
 
     void clean();
 }

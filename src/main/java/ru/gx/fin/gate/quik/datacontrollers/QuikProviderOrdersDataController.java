@@ -1,7 +1,6 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.model.internal.QuikOrder;
 import ru.gx.fin.gate.quik.model.internal.QuikOrdersPackage;
@@ -13,7 +12,7 @@ import java.io.IOException;
  */
 @Slf4j
 public class QuikProviderOrdersDataController
-        extends StandardQuikProviderDataController<QuikOrder, QuikOrdersPackage> {
+        extends AbstractQuikProviderDataController<QuikOrder, QuikOrdersPackage> {
     public QuikProviderOrdersDataController() {
         super();
         this.init(25, 500);

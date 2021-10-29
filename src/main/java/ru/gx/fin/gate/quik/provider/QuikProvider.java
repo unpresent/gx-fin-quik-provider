@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.datacontrollers.ProviderDataController;
-import ru.gx.worker.SimpleIterationExecuteEvent;
-import ru.gx.worker.SimpleStartingExecuteEvent;
-import ru.gx.worker.SimpleStoppingExecuteEvent;
+import ru.gx.worker.SimpleOnIterationExecuteEvent;
+import ru.gx.worker.SimpleOnStartingExecuteEvent;
+import ru.gx.worker.SimpleOnStoppingExecuteEvent;
 import ru.gx.worker.SimpleWorker;
 
 import java.io.IOException;
@@ -38,8 +38,8 @@ public class QuikProvider {
     private List<ProviderDataController> dataControllers;
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
-    @EventListener(SimpleStartingExecuteEvent.class)
-    public void startingExecute(SimpleStartingExecuteEvent __) {
+    @EventListener(SimpleOnStartingExecuteEvent.class)
+    public void startingExecute(SimpleOnStartingExecuteEvent __) {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
@@ -47,8 +47,8 @@ public class QuikProvider {
         }
     }
 
-    @EventListener(SimpleStoppingExecuteEvent.class)
-    public void stoppingExecute(SimpleStoppingExecuteEvent __) {
+    @EventListener(SimpleOnStoppingExecuteEvent.class)
+    public void stoppingExecute(SimpleOnStoppingExecuteEvent __) {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
@@ -56,8 +56,8 @@ public class QuikProvider {
         }
     }
 
-    @EventListener(SimpleIterationExecuteEvent.class)
-    public void iterationExecute(SimpleIterationExecuteEvent event) {
+    @EventListener(SimpleOnIterationExecuteEvent.class)
+    public void iterationExecute(SimpleOnIterationExecuteEvent event) {
         log.debug("Starting iterationExecute()");
         try {
             this.simpleWorker.runnerIsLifeSet();
@@ -83,7 +83,7 @@ public class QuikProvider {
         }
     }
 
-    protected boolean internalCheckConnected(SimpleIterationExecuteEvent event) {
+    protected boolean internalCheckConnected(SimpleOnIterationExecuteEvent event) {
         if (!this.connector.isActive()) {
             try {
                 final var n = this.settings.getAttemptsOnConnect();
@@ -112,10 +112,8 @@ public class QuikProvider {
         return true;
     }
 
-    @SuppressWarnings("ImplicitArrayToString")
-    private void internalTreatmentExceptionOnDataRead(SimpleIterationExecuteEvent event, Exception e) {
-        log.error(e.getMessage());
-        log.error(e.getStackTrace().toString());
+    private void internalTreatmentExceptionOnDataRead(SimpleOnIterationExecuteEvent event, Exception e) {
+        log.error("", e);
         if (e instanceof InterruptedException) {
             log.info("event.setStopExecution(true)");
             event.setStopExecution(true);

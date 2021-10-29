@@ -9,12 +9,12 @@ import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.model.internal.QuikSessionState;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
-import ru.gx.worker.SimpleIterationExecuteEvent;
+import ru.gx.worker.SimpleOnIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 
-import static lombok.AccessLevel.*;
+import static lombok.AccessLevel.PROTECTED;
 
 /**
  * Контролер чтения состояния сессии
@@ -62,7 +62,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
     }
 
     @Override
-    public void load(SimpleIterationExecuteEvent iterationExecuteEvent) throws IOException, QuikConnectorException {
+    public void load(SimpleOnIterationExecuteEvent iterationExecuteEvent) throws IOException, QuikConnectorException {
         if (!needReload()) {
             return;
         }

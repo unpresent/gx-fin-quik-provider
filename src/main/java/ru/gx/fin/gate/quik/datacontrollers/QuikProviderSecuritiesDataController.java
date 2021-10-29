@@ -1,7 +1,6 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.model.internal.QuikSecuritiesPackage;
 import ru.gx.fin.gate.quik.model.internal.QuikSecurity;
@@ -13,7 +12,7 @@ import java.io.IOException;
  */
 @Slf4j
 public class QuikProviderSecuritiesDataController
-        extends StandardQuikProviderDataController<QuikSecurity, QuikSecuritiesPackage> {
+        extends AbstractQuikProviderDataController<QuikSecurity, QuikSecuritiesPackage> {
     public QuikProviderSecuritiesDataController() {
         super();
         this.init(10, 500);

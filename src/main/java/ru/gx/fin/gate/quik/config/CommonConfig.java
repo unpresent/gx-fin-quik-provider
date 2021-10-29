@@ -2,33 +2,43 @@ package ru.gx.fin.gate.quik.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaAdmin;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.datacontrollers.*;
+import ru.gx.fin.gate.quik.descriptors.QuikAllTradesUploadingDescriptor;
+import ru.gx.fin.gate.quik.descriptors.QuikDealsUploadingDescriptor;
+import ru.gx.fin.gate.quik.descriptors.QuikOrdersUploadingDescriptor;
+import ru.gx.fin.gate.quik.descriptors.QuikSecuritiesUploadingDescriptor;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
-import ru.gx.fin.gate.quik.provider.QuikProviderLifeController;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
-import ru.gx.settings.SimpleSettingsController;
-import ru.gx.worker.SimpleWorker;
+import ru.gx.kafka.TopicMessageMode;
+import ru.gx.kafka.upload.OutcomeTopicsConfiguration;
+import ru.gx.kafka.upload.OutcomeTopicsConfigurator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-public class CommonConfig {
+import static lombok.AccessLevel.PROTECTED;
+
+public class CommonConfig implements OutcomeTopicsConfigurator {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Common">
-    @Value("${service.name}")
-    private String serviceName;
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    private QuikProviderSettingsContainer settings;
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -37,16 +47,6 @@ public class CommonConfig {
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Provider & Settings">
-    @Bean
-    public SimpleSettingsController simpleSettingsController() {
-        return new SimpleSettingsController(this.serviceName);
-    }
-
-    @Bean
-    public SimpleWorker simpleWorker() {
-        return new SimpleWorker(this.serviceName);
-    }
-
     @Bean
     public QuikProviderSettingsContainer quikProviderSettingsController() {
         return new QuikProviderSettingsContainer();
@@ -61,11 +61,6 @@ public class CommonConfig {
     @Bean
     public QuikProvider provider() {
         return new QuikProvider();
-    }
-
-    @Bean
-    public QuikProviderLifeController providerLifeController() {
-        return new QuikProviderLifeController();
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
@@ -119,13 +114,42 @@ public class CommonConfig {
         return new KafkaAdmin(configs);
     }
 
-    @Bean
-    public KafkaProducer<Long, String> producer() {
+    private Properties producerProperties() {
         final var props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServer);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return new KafkaProducer<>(props);
+        return props;
+    }
+
+    @Bean
+    public KafkaProducer<Long, String> producer() {
+        return new KafkaProducer<>(producerProperties());
+    }
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="Kafka Producer">
+
+    @Override
+    public void configureOutcomeTopics(@NotNull OutcomeTopicsConfiguration configuration) {
+        final var defaults = configuration.getDescriptorsDefaults()
+                .setTopicMessageMode(TopicMessageMode.PACKAGE)
+                .setProducerProperties(producerProperties());
+
+        configuration
+                .register(
+                        new QuikAllTradesUploadingDescriptor(this.settings.getOutcomeTopicAllTrades(), defaults)
+                )
+                .register(
+                        new QuikOrdersUploadingDescriptor(this.settings.getOutcomeTopicOrders(), defaults)
+                )
+                .register(
+                        new QuikDealsUploadingDescriptor(this.settings.getOutcomeTopicDeals(), defaults)
+                )
+                .register(
+                        new QuikSecuritiesUploadingDescriptor(this.settings.getOutcomeTopicSecurities(), defaults)
+                );
+
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
