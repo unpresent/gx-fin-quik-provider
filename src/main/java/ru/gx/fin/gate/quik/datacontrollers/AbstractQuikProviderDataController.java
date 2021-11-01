@@ -20,6 +20,7 @@ import ru.gx.kafka.LongHeader;
 import ru.gx.kafka.upload.OutcomeTopicUploader;
 import ru.gx.kafka.upload.OutcomeTopicUploadingDescriptor;
 import ru.gx.kafka.upload.OutcomeTopicsConfiguration;
+import ru.gx.kafka.upload.StandardOutcomeTopicUploadingDescriptor;
 import ru.gx.worker.SimpleOnIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
@@ -57,7 +58,7 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
 
     @Getter(PROTECTED)
     @Setter(PROTECTED)
-    private OutcomeTopicUploadingDescriptor<O, P> descriptor;
+    private StandardOutcomeTopicUploadingDescriptor<O, P> descriptor;
 
     @Getter(PROTECTED)
     @NotNull
@@ -84,10 +85,6 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikConnector connector;
-
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private KafkaProducer<Long, String> kafkaProducer;
 
     /**
      * Индекс (который этой записи присвоил Quik) последней записи, прочитанной из Quik-а.

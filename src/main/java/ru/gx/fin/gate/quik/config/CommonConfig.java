@@ -5,7 +5,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -16,15 +15,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaAdmin;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.datacontrollers.*;
-import ru.gx.fin.gate.quik.descriptors.QuikAllTradesUploadingDescriptor;
-import ru.gx.fin.gate.quik.descriptors.QuikDealsUploadingDescriptor;
-import ru.gx.fin.gate.quik.descriptors.QuikOrdersUploadingDescriptor;
-import ru.gx.fin.gate.quik.descriptors.QuikSecuritiesUploadingDescriptor;
+import ru.gx.fin.gate.quik.model.internal.*;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
+import ru.gx.kafka.SerializeMode;
 import ru.gx.kafka.TopicMessageMode;
 import ru.gx.kafka.upload.OutcomeTopicsConfiguration;
 import ru.gx.kafka.upload.OutcomeTopicsConfigurator;
+import ru.gx.kafka.upload.StandardOutcomeTopicUploadingDescriptor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +42,7 @@ public class CommonConfig implements OutcomeTopicsConfigurator {
     public ObjectMapper objectMapper() {
         return new ObjectMapper().registerModule(new JavaTimeModule());
     }
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Provider & Settings">
@@ -62,6 +61,7 @@ public class CommonConfig implements OutcomeTopicsConfigurator {
     public QuikProvider provider() {
         return new QuikProvider();
     }
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="DataControllers">
@@ -101,6 +101,7 @@ public class CommonConfig implements OutcomeTopicsConfigurator {
         result.add(quikProviderSessionStateDataController());
         return result;
     }
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Kafka Producer">
@@ -121,35 +122,41 @@ public class CommonConfig implements OutcomeTopicsConfigurator {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         return props;
     }
-
-    @Bean
-    public KafkaProducer<Long, String> producer() {
-        return new KafkaProducer<>(producerProperties());
-    }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Kafka Producer">
 
+    @SuppressWarnings("unchecked")
     @Override
     public void configureOutcomeTopics(@NotNull OutcomeTopicsConfiguration configuration) {
-        final var defaults = configuration.getDescriptorsDefaults()
-                .setTopicMessageMode(TopicMessageMode.PACKAGE)
+        configuration.getDescriptorsDefaults()
+                .setSerializeMode(SerializeMode.String)
+                .setTopicMessageMode(TopicMessageMode.Package)
                 .setProducerProperties(producerProperties());
 
         configuration
-                .register(
-                        new QuikAllTradesUploadingDescriptor(this.settings.getOutcomeTopicAllTrades(), defaults)
-                )
-                .register(
-                        new QuikOrdersUploadingDescriptor(this.settings.getOutcomeTopicOrders(), defaults)
-                )
-                .register(
-                        new QuikDealsUploadingDescriptor(this.settings.getOutcomeTopicDeals(), defaults)
-                )
-                .register(
-                        new QuikSecuritiesUploadingDescriptor(this.settings.getOutcomeTopicSecurities(), defaults)
-                );
+                .newDescriptor(this.settings.getOutcomeTopicAllTrades(), StandardOutcomeTopicUploadingDescriptor.class)
+                .setDataObjectClass(QuikAllTrade.class)
+                .setDataPackageClass(QuikAllTradesPackage.class)
+                .init();
 
+        configuration
+                .newDescriptor(this.settings.getOutcomeTopicOrders(), StandardOutcomeTopicUploadingDescriptor.class)
+                .setDataObjectClass(QuikOrder.class)
+                .setDataPackageClass(QuikOrdersPackage.class)
+                .init();
+
+        configuration
+                .newDescriptor(this.settings.getOutcomeTopicDeals(), StandardOutcomeTopicUploadingDescriptor.class)
+                .setDataObjectClass(QuikDeal.class)
+                .setDataPackageClass(QuikOrdersPackage.class)
+                .init();
+
+        configuration
+                .newDescriptor(this.settings.getOutcomeTopicSecurities(), StandardOutcomeTopicUploadingDescriptor.class)
+                .setDataObjectClass(QuikSecurity.class)
+                .setDataPackageClass(QuikSecuritiesPackage.class)
+                .init();
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------

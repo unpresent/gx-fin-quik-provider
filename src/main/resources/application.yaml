@@ -1,10 +1,14 @@
 service:
   name: quik-provider
   simple-worker.enabled: true
+  active-connections-container.enabled: true
   outcome-topics:
+    configurator-caller.enabled: true
     simple-configuration.enabled: true
     standard-uploader.enabled: true
-    configurator-caller.enabled: true
+    standard-offsets-controller.enabled: true
+    jdbc-saver.enabled: true
+    jdbc-loader.enabled: true
 
 # quik-provider
 quik-provider:
