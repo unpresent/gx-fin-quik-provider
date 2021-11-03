@@ -11,6 +11,9 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaAdmin;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
@@ -31,6 +34,7 @@ import java.util.Properties;
 
 import static lombok.AccessLevel.PROTECTED;
 
+@EnableConfigurationProperties({ConfigurationPropertiesKafka.class, ConfigurationPropertiesQuik.class})
 public class CommonConfig implements OutcomeTopicsConfigurator {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Common">
@@ -46,15 +50,10 @@ public class CommonConfig implements OutcomeTopicsConfigurator {
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Provider & Settings">
+    // TODO: Должно создаваться в gx-fin-quik-gateway.
     @Bean
     public QuikProviderSettingsContainer quikProviderSettingsController() {
         return new QuikProviderSettingsContainer();
-    }
-
-    @Bean
-    @Autowired
-    public QuikConnector connector(ObjectMapper objectMapper, QuikProviderSettingsContainer settings) {
-        return new QuikConnector(objectMapper, settings.getQuikPipeName(), settings.getBufferSize());
     }
 
     @Bean

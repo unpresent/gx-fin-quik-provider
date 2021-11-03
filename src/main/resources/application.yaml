@@ -1,21 +1,18 @@
 service:
   name: quik-provider
-  simple-worker.enabled: true
-  active-connections-container.enabled: true
+  simple-settings-controller:
+    enabled: true
+  simple-worker:
+    enabled: true
+    wait-on-stop-ms: 1000
+    wait-on-restart-ms: 20000
+    min-time-per-iteration-ms: 1000
+    timeout-runner-life-ms: 60000
   outcome-topics:
     configurator-caller.enabled: true
     simple-configuration.enabled: true
     standard-uploader.enabled: true
     standard-offsets-controller.enabled: true
-    jdbc-saver.enabled: true
-    jdbc-loader.enabled: true
-
-# quik-provider
-quik-provider:
-  wait_on_stop_ms: 1000
-  wait_on_restart_ms: 20000
-  min_time_per_iteration_ms: 1000
-  timeout_runner_life_ms: 60000
 
 # Логирование
 logging:
@@ -30,18 +27,18 @@ server:
 
 #quik
 quik:
-  pipe_name: C-QUIK_VTB-
-  buffer_size: 32768 # 32 * 1024
-  attempts_on_connect: 20
-  pause_on_connect_ms: 3000
-  interval_mandatory_read_state_ms: 5000
+  connector.enabled: true
+  pipe-name: C-QUIK_VTB-
+  buffer-size: 32768
+  attempts-on-connect: 20
+  pause-on-connect-ms: 3000
+  interval-mandatory-read-state-ms: 5000
 
 #kafka
 kafka:
   server: localhost:9092
-  group_id: quik-group
-  outcome_topic:
-    all_trades: quikProviderAllTrades
+  outcome-topics:
+    all-trades: quikProviderAllTrades
     deals: quikProviderDeals
     orders: quikProviderOrders
     securities: quikProviderSecurities
