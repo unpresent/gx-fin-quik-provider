@@ -3,6 +3,7 @@ package ru.gx.fin.gate.quik.converters;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import ru.gx.data.AbstractDtoFromDtoConverter;
+import ru.gx.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikAllTrade;
 import ru.gx.fin.gate.quik.provider.out.QuikAllTrade;
@@ -49,9 +50,8 @@ public class QuikAllTradeFromOriginalQuikAllTradeConverter extends AbstractDtoFr
         return false;
     }
 
-    @SneakyThrows(ProviderException.class)
     @Override
-    public void updateDtoBySource(@NotNull final QuikAllTrade destination, @NotNull final OriginalQuikAllTrade source) {
-        throw new ProviderException("It isn't supported update QuikAllTrade!");
+    public void updateDtoBySource(@NotNull final QuikAllTrade destination, @NotNull final OriginalQuikAllTrade source) throws NotAllowedObjectUpdateException {
+        throw new NotAllowedObjectUpdateException(QuikAllTrade.class, null);
     }
 }

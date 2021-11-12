@@ -2,8 +2,10 @@ package ru.gx.fin.gate.quik.datacontrollers;
 
 import lombok.AccessLevel;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.gx.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.converters.QuikOrderFromOriginalQuikOrderConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.provider.out.QuikOrder;
@@ -31,6 +33,7 @@ public class QuikProviderOrdersDataController
         return this.getSettings().getOutcomeTopicOrders();
     }
 
+    @SneakyThrows(NotAllowedObjectUpdateException.class)
     @Override
     protected QuikOrdersPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
         final var originalPackage = this.getConnector().getOrdersPackage(lastIndex, packageSize);

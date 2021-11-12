@@ -3,6 +3,7 @@ package ru.gx.fin.gate.quik.converters;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import ru.gx.data.AbstractDtoFromDtoConverter;
+import ru.gx.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikOrder;
 import ru.gx.fin.gate.quik.provider.out.QuikDealDirection;
@@ -72,9 +73,8 @@ public class QuikOrderFromOriginalQuikOrderConverter extends AbstractDtoFromDtoC
         return false;
     }
 
-    @SneakyThrows(ProviderException.class)
     @Override
-    public void updateDtoBySource(@NotNull final QuikOrder destination, @NotNull final OriginalQuikOrder source) {
-        throw new ProviderException("It isn't supported update QuikOrder!");
+    public void updateDtoBySource(@NotNull final QuikOrder destination, @NotNull final OriginalQuikOrder source) throws NotAllowedObjectUpdateException {
+        throw new NotAllowedObjectUpdateException(QuikOrder.class, null);
     }
 }

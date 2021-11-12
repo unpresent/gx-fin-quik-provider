@@ -2,8 +2,10 @@ package ru.gx.fin.gate.quik.datacontrollers;
 
 import lombok.AccessLevel;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.gx.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.converters.QuikAllTradeFromOriginalQuikAllTradeConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.provider.out.QuikAllTrade;
@@ -31,6 +33,7 @@ public class QuikProviderAllTradesDataController
         return this.getSettings().getOutcomeTopicAllTrades();
     }
 
+    @SneakyThrows(NotAllowedObjectUpdateException.class)
     @Override
     protected QuikAllTradesPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
         final var originalPackage = this.getConnector().getAllTradesPackage(lastIndex, packageSize);

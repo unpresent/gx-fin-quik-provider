@@ -3,8 +3,10 @@ package ru.gx.fin.gate.quik.converters;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import ru.gx.data.AbstractDtoFromDtoConverter;
+import ru.gx.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikSecurity;
+import ru.gx.fin.gate.quik.provider.out.QuikOrder;
 import ru.gx.fin.gate.quik.provider.out.QuikSecurity;
 import ru.gx.utils.BigDecimalUtils;
 import ru.gx.utils.StringUtils;
@@ -41,9 +43,8 @@ public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFr
         return false;
     }
 
-    @SneakyThrows(ProviderException.class)
     @Override
-    public void updateDtoBySource(@NotNull final QuikSecurity destination, @NotNull final OriginalQuikSecurity source) {
-        throw new ProviderException("It isn't supported update QuikSecurity!");
+    public void updateDtoBySource(@NotNull final QuikSecurity destination, @NotNull final OriginalQuikSecurity source) throws NotAllowedObjectUpdateException {
+        throw new NotAllowedObjectUpdateException(QuikOrder.class, null);
     }
 }

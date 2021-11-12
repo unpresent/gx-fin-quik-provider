@@ -3,8 +3,10 @@ package ru.gx.fin.gate.quik.converters;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import ru.gx.data.AbstractDtoFromDtoConverter;
+import ru.gx.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikDeal;
+import ru.gx.fin.gate.quik.provider.out.QuikAllTrade;
 import ru.gx.fin.gate.quik.provider.out.QuikDeal;
 import ru.gx.fin.gate.quik.provider.out.QuikDealDirection;
 import ru.gx.utils.BigDecimalUtils;
@@ -79,10 +81,9 @@ public class QuikDealFromOriginalQuikDealConverter extends AbstractDtoFromDtoCon
         return false;
     }
 
-    @SneakyThrows(ProviderException.class)
     @Override
-    public void updateDtoBySource(@NotNull QuikDeal destination, @NotNull OriginalQuikDeal source) {
-        throw new ProviderException("It isn't supported update QuikDeal!");
+    public void updateDtoBySource(@NotNull QuikDeal destination, @NotNull OriginalQuikDeal source) throws NotAllowedObjectUpdateException {
+        throw new NotAllowedObjectUpdateException(QuikDeal.class, null);
     }
 }
 
