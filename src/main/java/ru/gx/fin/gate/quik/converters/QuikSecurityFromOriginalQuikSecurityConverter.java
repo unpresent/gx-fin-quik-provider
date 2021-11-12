@@ -2,6 +2,7 @@ package ru.gx.fin.gate.quik.converters;
 
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.gx.data.AbstractDtoFromDtoConverter;
 import ru.gx.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.errors.ProviderException;
@@ -15,11 +16,13 @@ import java.math.BigDecimal;
 
 public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFromDtoConverter<QuikSecurity, OriginalQuikSecurity> {
     @Override
-    public QuikSecurity findDtoBySource(@NotNull OriginalQuikSecurity source) {
+    @Nullable
+    public QuikSecurity findDtoBySource(@Nullable OriginalQuikSecurity source) {
         return null;
     }
 
     @Override
+    @NotNull
     public QuikSecurity createDtoBySource(@NotNull OriginalQuikSecurity source) {
         return new QuikSecurity(
                 source.getRowIndex(),

@@ -1,10 +1,9 @@
 package ru.gx.fin.gate.quik.converters;
 
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.gx.data.AbstractDtoFromDtoConverter;
 import ru.gx.data.NotAllowedObjectUpdateException;
-import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikOrder;
 import ru.gx.fin.gate.quik.provider.out.QuikDealDirection;
 import ru.gx.fin.gate.quik.provider.out.QuikOrder;
@@ -15,11 +14,13 @@ import java.math.BigDecimal;
 
 public class QuikOrderFromOriginalQuikOrderConverter extends AbstractDtoFromDtoConverter<QuikOrder, OriginalQuikOrder> {
     @Override
-    public QuikOrder findDtoBySource(@NotNull final OriginalQuikOrder source) {
+    @Nullable
+    public QuikOrder findDtoBySource(@Nullable final OriginalQuikOrder source) {
         return null;
     }
 
     @Override
+    @NotNull
     public QuikOrder createDtoBySource(@NotNull final OriginalQuikOrder source) {
         return new QuikOrder(
                 source.getRowIndex(),

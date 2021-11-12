@@ -1,10 +1,9 @@
 package ru.gx.fin.gate.quik.converters;
 
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.gx.data.AbstractDtoFromDtoConverter;
 import ru.gx.data.NotAllowedObjectUpdateException;
-import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikAllTrade;
 import ru.gx.fin.gate.quik.provider.out.QuikAllTrade;
 import ru.gx.fin.gate.quik.provider.out.QuikDealDirection;
@@ -15,13 +14,14 @@ import java.math.BigDecimal;
 
 public class QuikAllTradeFromOriginalQuikAllTradeConverter extends AbstractDtoFromDtoConverter<QuikAllTrade, OriginalQuikAllTrade> {
     @Override
-    public QuikAllTrade findDtoBySource(@NotNull final OriginalQuikAllTrade source) {
+    @Nullable
+    public QuikAllTrade findDtoBySource(@Nullable final OriginalQuikAllTrade source) {
         return null;
     }
 
     @Override
+    @NotNull
     public QuikAllTrade createDtoBySource(@NotNull final OriginalQuikAllTrade source) {
-
         return new QuikAllTrade(
                 source.getRowIndex(),
                 source.getExchangeCode(),
