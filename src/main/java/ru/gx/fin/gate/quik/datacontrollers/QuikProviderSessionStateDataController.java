@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
-import ru.gx.fin.gate.quik.model.internal.QuikSessionState;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
+import ru.gx.fin.gate.quik.provider.out.QuikSessionState;
 import ru.gx.worker.SimpleOnIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
@@ -67,14 +67,27 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
             return;
         }
 
-        final var quikSessionState = this.connector.getSessionState();
+        final var originalSessionState = this.connector.getSessionState();
         setLastReadSessionStateMs(System.currentTimeMillis());
-        setLastSessionState(new QuikSessionState(quikSessionState));
-        log.info("Loaded sessionState (isConnected = {}, serverTime = {})", quikSessionState.isConnected(), quikSessionState.getServerTime());
+        setLastSessionState(
+                new QuikSessionState(
+                        originalSessionState.isConnected(),
+                        originalSessionState.getSessionId(),
+                        originalSessionState.getServerTime(),
+                        originalSessionState.getConnectionTime(),
+                        originalSessionState.getVersion(),
+                        originalSessionState.getConnection(),
+                        originalSessionState.getIpAddress(),
+                        originalSessionState.getIpPort(),
+                        originalSessionState.getIpComment()
+                )
+        );
+        log.info("Loaded sessionState (isConnected = {}, serverTime = {})", originalSessionState.isConnected(), originalSessionState.getServerTime());
     }
 
     /**
      * Вычисляется необходимость прям сейчас чтения состояния.
+     *
      * @return true - надо прочитать данные прям сейчас
      */
     public boolean needReload() {

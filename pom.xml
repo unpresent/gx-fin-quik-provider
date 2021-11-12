@@ -17,6 +17,7 @@
         <gx-starter.version>1.1</gx-starter.version>
         <gx-kafka-starter.version>1.1</gx-kafka-starter.version>
         <gx-fin-quik-gateway.version>1.1</gx-fin-quik-gateway.version>
+        <gx-fin-quik-provider-out-api.version>1.1</gx-fin-quik-provider-out-api.version>
 
         <org.springframework.boot.version>2.5.1</org.springframework.boot.version>
         <org.springframework.kafka.version>2.7.0</org.springframework.kafka.version>
@@ -60,6 +61,11 @@
             <groupId>ru.gx.fin.gate.quik</groupId>
             <artifactId>gx-fin-quik-gateway</artifactId>
             <version>${gx-fin-quik-gateway.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.gx.fin.gate.quik</groupId>
+            <artifactId>gx-fin-quik-provider-out-api</artifactId>
+            <version>${gx-fin-quik-provider-out-api.version}</version>
         </dependency>
 
         <dependency>

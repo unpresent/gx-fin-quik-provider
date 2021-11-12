@@ -1,9 +1,13 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
+import lombok.AccessLevel;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.gx.fin.gate.quik.converters.QuikOrderFromOriginalQuikOrderConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
-import ru.gx.fin.gate.quik.model.internal.QuikOrder;
-import ru.gx.fin.gate.quik.model.internal.QuikOrdersPackage;
+import ru.gx.fin.gate.quik.provider.out.QuikOrder;
+import ru.gx.fin.gate.quik.provider.out.QuikOrdersPackage;
 
 import java.io.IOException;
 
@@ -13,6 +17,10 @@ import java.io.IOException;
 @Slf4j
 public class QuikProviderOrdersDataController
         extends AbstractQuikProviderDataController<QuikOrder, QuikOrdersPackage> {
+
+    @Setter(value = AccessLevel.PROTECTED, onMethod_ = @Autowired)
+    private QuikOrderFromOriginalQuikOrderConverter converter;
+
     public QuikProviderOrdersDataController() {
         super();
         this.init(25, 500);
@@ -25,7 +33,9 @@ public class QuikProviderOrdersDataController
 
     @Override
     protected QuikOrdersPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
-        final var quikPackage = this.getConnector().getOrdersPackage(lastIndex, packageSize);
-        return new QuikOrdersPackage(quikPackage);
+        final var originalPackage = this.getConnector().getOrdersPackage(lastIndex, packageSize);
+        final var result = new QuikOrdersPackage();
+        this.converter.fillDtoCollectionFromSource(result.getObjects(), originalPackage.getObjects());
+        return result;
     }
 }

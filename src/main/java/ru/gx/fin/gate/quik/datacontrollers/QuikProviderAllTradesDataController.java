@@ -1,9 +1,13 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
+import lombok.AccessLevel;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.gx.fin.gate.quik.converters.QuikAllTradeFromOriginalQuikAllTradeConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
-import ru.gx.fin.gate.quik.model.internal.QuikAllTrade;
-import ru.gx.fin.gate.quik.model.internal.QuikAllTradesPackage;
+import ru.gx.fin.gate.quik.provider.out.QuikAllTrade;
+import ru.gx.fin.gate.quik.provider.out.QuikAllTradesPackage;
 
 import java.io.IOException;
 
@@ -13,6 +17,9 @@ import java.io.IOException;
 @Slf4j
 public class QuikProviderAllTradesDataController
         extends AbstractQuikProviderDataController<QuikAllTrade, QuikAllTradesPackage> {
+
+    @Setter(value = AccessLevel.PROTECTED, onMethod_ = @Autowired)
+    private QuikAllTradeFromOriginalQuikAllTradeConverter converter;
 
     public QuikProviderAllTradesDataController() {
         super();
@@ -26,7 +33,10 @@ public class QuikProviderAllTradesDataController
 
     @Override
     protected QuikAllTradesPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
-        final var quikPackage = this.getConnector().getAllTradesPackage(lastIndex, packageSize);
-        return new QuikAllTradesPackage(quikPackage);
+        final var originalPackage = this.getConnector().getAllTradesPackage(lastIndex, packageSize);
+        final var result = new QuikAllTradesPackage();
+        result.allCount = originalPackage.getQuikAllCount();
+        this.converter.fillDtoCollectionFromSource(result.getObjects(), originalPackage.getObjects());
+        return result;
     }
 }

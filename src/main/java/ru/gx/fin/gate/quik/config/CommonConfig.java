@@ -11,16 +11,17 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaAdmin;
-import ru.gx.fin.gate.quik.connector.QuikConnector;
+import ru.gx.fin.gate.quik.converters.QuikAllTradeFromOriginalQuikAllTradeConverter;
+import ru.gx.fin.gate.quik.converters.QuikDealFromOriginalQuikDealConverter;
+import ru.gx.fin.gate.quik.converters.QuikOrderFromOriginalQuikOrderConverter;
+import ru.gx.fin.gate.quik.converters.QuikSecurityFromOriginalQuikSecurityConverter;
 import ru.gx.fin.gate.quik.datacontrollers.*;
-import ru.gx.fin.gate.quik.model.internal.*;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
+import ru.gx.fin.gate.quik.provider.out.*;
 import ru.gx.kafka.SerializeMode;
 import ru.gx.kafka.TopicMessageMode;
 import ru.gx.kafka.upload.OutcomeTopicsConfiguration;
@@ -62,6 +63,27 @@ public class CommonConfig implements OutcomeTopicsConfigurator {
     }
 
     // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="Converters">
+    @Bean
+    public QuikAllTradeFromOriginalQuikAllTradeConverter quikAllTradeFromOriginalQuikAllTradeConverter() {
+        return new QuikAllTradeFromOriginalQuikAllTradeConverter();
+    }
+
+    @Bean
+    public QuikOrderFromOriginalQuikOrderConverter quikOrderFromOriginalQuikOrderConverter() {
+        return new QuikOrderFromOriginalQuikOrderConverter();
+    }
+
+    @Bean
+    public QuikDealFromOriginalQuikDealConverter quikDealFromOriginalQuikDealConverter() {
+        return new QuikDealFromOriginalQuikDealConverter();
+    }
+
+    @Bean
+    public QuikSecurityFromOriginalQuikSecurityConverter quikSecurityFromOriginalQuikSecurityConverter() {
+        return new QuikSecurityFromOriginalQuikSecurityConverter();
+    }    // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="DataControllers">
     @Bean
