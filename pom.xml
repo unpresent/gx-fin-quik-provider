@@ -7,19 +7,19 @@
     <groupId>ru.gx.fin.gate.quik</groupId>
     <artifactId>gx-fin-quik-provider</artifactId>
     <packaging>jar</packaging>
-    <version>1.1</version>
+    <version>1.2</version>
 
     <properties>
         <encoding>UTF-8</encoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <gx-starter.version>1.1</gx-starter.version>
-        <gx-kafka-starter.version>1.1</gx-kafka-starter.version>
-        <gx-fin-quik-gateway.version>1.1</gx-fin-quik-gateway.version>
-        <gx-fin-quik-provider-out-api.version>1.1</gx-fin-quik-provider-out-api.version>
+        <gx-starter.version>1.2</gx-starter.version>
+        <gx-kafka-starter.version>1.2</gx-kafka-starter.version>
+        <gx-fin-quik-gateway.version>1.2</gx-fin-quik-gateway.version>
+        <gx-fin-quik-provider-out-api.version>1.2</gx-fin-quik-provider-out-api.version>
 
-        <org.springframework.boot.version>2.5.1</org.springframework.boot.version>
+        <org.springframework.boot.version>2.5.5</org.springframework.boot.version>
         <org.springframework.kafka.version>2.7.0</org.springframework.kafka.version>
         <org.testcontainers.version>1.16.0</org.testcontainers.version>
 
@@ -68,6 +68,14 @@
             <version>${gx-fin-quik-provider-out-api.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>

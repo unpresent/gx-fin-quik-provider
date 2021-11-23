@@ -2,7 +2,7 @@ package ru.gx.fin.gate.quik;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import ru.gx.worker.SimpleDoStartWorkerEvent;
+import ru.gx.simpleworker.DoStartSimpleWorkerEvent;
 
 @SpringBootApplication
 public class Application {
@@ -10,6 +10,6 @@ public class Application {
         final var context = new SpringApplicationBuilder(Application.class)
                 // .web(WebApplicationType.NONE)
                 .run(args);
-        SimpleDoStartWorkerEvent.publish(context, context);
+        DoStartSimpleWorkerEvent.publish(context, context);
     }
 }

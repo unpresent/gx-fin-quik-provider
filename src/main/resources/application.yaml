@@ -1,18 +1,18 @@
 service:
   name: quik-provider
-  simple-settings-controller:
+  standard-settings-controller:
     enabled: true
   simple-worker:
     enabled: true
+    name: simple-worker
     wait-on-stop-ms: 1000
     wait-on-restart-ms: 20000
     min-time-per-iteration-ms: 1000
     timeout-runner-life-ms: 60000
+    print-statistics-every-ms: 1000
   outcome-topics:
-    configurator-caller.enabled: true
     simple-configuration.enabled: true
     standard-uploader.enabled: true
-    standard-offsets-controller.enabled: true
 
 # Логирование
 logging:
@@ -47,3 +47,16 @@ spring:
   jackson:
     serialization:
       write_dates_as_timestamps: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true

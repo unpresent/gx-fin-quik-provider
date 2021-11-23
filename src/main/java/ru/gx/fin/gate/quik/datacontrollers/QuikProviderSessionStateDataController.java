@@ -9,7 +9,7 @@ import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.fin.gate.quik.provider.out.QuikSessionState;
-import ru.gx.worker.SimpleOnIterationExecuteEvent;
+import ru.gx.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
     }
 
     @Override
-    public void load(SimpleOnIterationExecuteEvent iterationExecuteEvent) throws IOException, QuikConnectorException {
+    public void load(SimpleWorkerOnIterationExecuteEvent iterationExecuteEvent) throws IOException, QuikConnectorException {
         if (!needReload()) {
             return;
         }

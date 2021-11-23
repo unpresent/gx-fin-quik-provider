@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.datacontrollers.ProviderDataController;
-import ru.gx.worker.SimpleOnIterationExecuteEvent;
-import ru.gx.worker.SimpleOnStartingExecuteEvent;
-import ru.gx.worker.SimpleOnStoppingExecuteEvent;
-import ru.gx.worker.SimpleWorker;
+import ru.gx.simpleworker.SimpleWorker;
+import ru.gx.simpleworker.SimpleWorkerOnIterationExecuteEvent;
+import ru.gx.simpleworker.SimpleWorkerOnStartingExecuteEvent;
+import ru.gx.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,8 +38,8 @@ public class QuikProvider {
     private List<ProviderDataController> dataControllers;
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
-    @EventListener(SimpleOnStartingExecuteEvent.class)
-    public void startingExecute(SimpleOnStartingExecuteEvent __) {
+    @EventListener(SimpleWorkerOnStartingExecuteEvent.class)
+    public void startingExecute(SimpleWorkerOnStartingExecuteEvent __) {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
@@ -47,8 +47,8 @@ public class QuikProvider {
         }
     }
 
-    @EventListener(SimpleOnStoppingExecuteEvent.class)
-    public void stoppingExecute(SimpleOnStoppingExecuteEvent __) {
+    @EventListener(SimpleWorkerOnStoppingExecuteEvent.class)
+    public void stoppingExecute(SimpleWorkerOnStoppingExecuteEvent __) {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
@@ -56,8 +56,8 @@ public class QuikProvider {
         }
     }
 
-    @EventListener(SimpleOnIterationExecuteEvent.class)
-    public void iterationExecute(SimpleOnIterationExecuteEvent event) {
+    @EventListener(SimpleWorkerOnIterationExecuteEvent.class)
+    public void iterationExecute(SimpleWorkerOnIterationExecuteEvent event) {
         log.debug("Starting iterationExecute()");
         try {
             this.simpleWorker.runnerIsLifeSet();
@@ -83,7 +83,7 @@ public class QuikProvider {
         }
     }
 
-    protected boolean internalCheckConnected(SimpleOnIterationExecuteEvent event) {
+    protected boolean internalCheckConnected(SimpleWorkerOnIterationExecuteEvent event) {
         if (!this.connector.isActive()) {
             try {
                 final var n = this.settings.getAttemptsOnConnect();
@@ -112,7 +112,7 @@ public class QuikProvider {
         return true;
     }
 
-    private void internalTreatmentExceptionOnDataRead(SimpleOnIterationExecuteEvent event, Exception e) {
+    private void internalTreatmentExceptionOnDataRead(SimpleWorkerOnIterationExecuteEvent event, Exception e) {
         log.error("", e);
         if (e instanceof InterruptedException) {
             log.info("event.setStopExecution(true)");

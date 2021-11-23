@@ -1,6 +1,6 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
-import ru.gx.worker.SimpleOnIterationExecuteEvent;
+import ru.gx.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 
 /**
  * Управление каким-то одним потоком данных:
@@ -12,7 +12,7 @@ public interface ProviderDataController {
     String headerKeyAllCount = "allCount";
     String headerKeyLastIndex = "lastIndex";
 
-    void load(SimpleOnIterationExecuteEvent iterationExecuteEvent) throws Exception;
+    void load(SimpleWorkerOnIterationExecuteEvent iterationExecuteEvent) throws Exception;
 
     void clean();
 }

@@ -14,6 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaAdmin;
+import ru.gx.channels.ChannelMessageMode;
+import ru.gx.channels.ChannelsConfiguration;
+import ru.gx.channels.ChannelsConfigurator;
+import ru.gx.channels.SerializeMode;
 import ru.gx.fin.gate.quik.converters.QuikAllTradeFromOriginalQuikAllTradeConverter;
 import ru.gx.fin.gate.quik.converters.QuikDealFromOriginalQuikDealConverter;
 import ru.gx.fin.gate.quik.converters.QuikOrderFromOriginalQuikOrderConverter;
@@ -22,11 +26,8 @@ import ru.gx.fin.gate.quik.datacontrollers.*;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.fin.gate.quik.provider.out.*;
-import ru.gx.kafka.SerializeMode;
-import ru.gx.kafka.TopicMessageMode;
-import ru.gx.kafka.upload.OutcomeTopicsConfiguration;
-import ru.gx.kafka.upload.OutcomeTopicsConfigurator;
-import ru.gx.kafka.upload.StandardOutcomeTopicUploadingDescriptor;
+import ru.gx.kafka.upload.KafkaOutcomeTopicLoadingDescriptor;
+import ru.gx.kafka.upload.SimpleKafkaOutcomeTopicsConfiguration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,7 @@ import java.util.Properties;
 import static lombok.AccessLevel.PROTECTED;
 
 @EnableConfigurationProperties({ConfigurationPropertiesKafka.class, ConfigurationPropertiesQuik.class})
-public class CommonConfig implements OutcomeTopicsConfigurator {
+public class CommonConfig implements ChannelsConfigurator {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Common">
     @Getter(PROTECTED)
@@ -147,37 +148,42 @@ public class CommonConfig implements OutcomeTopicsConfigurator {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Kafka Producer">
 
+
     @SuppressWarnings("unchecked")
     @Override
-    public void configureOutcomeTopics(@NotNull OutcomeTopicsConfiguration configuration) {
-        configuration.getDescriptorsDefaults()
-                .setSerializeMode(SerializeMode.String)
-                .setTopicMessageMode(TopicMessageMode.Package)
-                .setProducerProperties(producerProperties());
+    public void configureChannels(@NotNull ChannelsConfiguration configuration) {
+        if (configuration instanceof SimpleKafkaOutcomeTopicsConfiguration) {
+            final var config = (SimpleKafkaOutcomeTopicsConfiguration)configuration;
+            config.getDescriptorsDefaults()
+                    .setProducerProperties(producerProperties())
+                    .setSerializeMode(SerializeMode.JsonString)
+                    .setMessageMode(ChannelMessageMode.Package);
 
-        configuration
-                .newDescriptor(this.settings.getOutcomeTopicAllTrades(), StandardOutcomeTopicUploadingDescriptor.class)
-                .setDataObjectClass(QuikAllTrade.class)
-                .setDataPackageClass(QuikAllTradesPackage.class)
-                .init();
+            config
+                    .newDescriptor(this.settings.getOutcomeTopicAllTrades(), KafkaOutcomeTopicLoadingDescriptor.class)
+                    .setDataObjectClass(QuikAllTrade.class)
+                    .setDataPackageClass(QuikAllTradesPackage.class)
+                    .init();
 
-        configuration
-                .newDescriptor(this.settings.getOutcomeTopicOrders(), StandardOutcomeTopicUploadingDescriptor.class)
-                .setDataObjectClass(QuikOrder.class)
-                .setDataPackageClass(QuikOrdersPackage.class)
-                .init();
+            config
+                    .newDescriptor(this.settings.getOutcomeTopicOrders(), KafkaOutcomeTopicLoadingDescriptor.class)
+                    .setDataObjectClass(QuikOrder.class)
+                    .setDataPackageClass(QuikOrdersPackage.class)
+                    .init();
 
-        configuration
-                .newDescriptor(this.settings.getOutcomeTopicDeals(), StandardOutcomeTopicUploadingDescriptor.class)
-                .setDataObjectClass(QuikDeal.class)
-                .setDataPackageClass(QuikOrdersPackage.class)
-                .init();
+            configuration
+                    .newDescriptor(this.settings.getOutcomeTopicDeals(), KafkaOutcomeTopicLoadingDescriptor.class)
+                    .setDataObjectClass(QuikDeal.class)
+                    .setDataPackageClass(QuikOrdersPackage.class)
+                    .init();
 
-        configuration
-                .newDescriptor(this.settings.getOutcomeTopicSecurities(), StandardOutcomeTopicUploadingDescriptor.class)
-                .setDataObjectClass(QuikSecurity.class)
-                .setDataPackageClass(QuikSecuritiesPackage.class)
-                .init();
+            configuration
+                    .newDescriptor(this.settings.getOutcomeTopicSecurities(), KafkaOutcomeTopicLoadingDescriptor.class)
+                    .setDataObjectClass(QuikSecurity.class)
+                    .setDataPackageClass(QuikSecuritiesPackage.class)
+                    .init();
+
+        }
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------

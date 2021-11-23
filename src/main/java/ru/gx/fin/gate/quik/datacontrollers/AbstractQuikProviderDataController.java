@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.header.Header;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.gx.channels.ChannelConfigurationException;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
@@ -16,10 +17,10 @@ import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.fin.gate.quik.provider.internal.QuikStandardDataObject;
 import ru.gx.fin.gate.quik.provider.internal.QuikStandardDataPackage;
 import ru.gx.kafka.LongHeader;
-import ru.gx.kafka.upload.OutcomeTopicUploader;
-import ru.gx.kafka.upload.OutcomeTopicsConfiguration;
-import ru.gx.kafka.upload.StandardOutcomeTopicUploadingDescriptor;
-import ru.gx.worker.SimpleOnIterationExecuteEvent;
+import ru.gx.kafka.upload.KafkaOutcomeTopicLoadingDescriptor;
+import ru.gx.kafka.upload.KafkaOutcomeTopicsUploader;
+import ru.gx.kafka.upload.SimpleKafkaOutcomeTopicsConfiguration;
+import ru.gx.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -48,15 +49,15 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
 
     @Getter(PROTECTED)
     @Setter(value = AccessLevel.PROTECTED, onMethod_ = @Autowired)
-    private OutcomeTopicUploader uploader;
+    private KafkaOutcomeTopicsUploader uploader;
 
     @Getter(PROTECTED)
     @Setter(value = AccessLevel.PROTECTED, onMethod_ = @Autowired)
-    private OutcomeTopicsConfiguration configuration;
+    private SimpleKafkaOutcomeTopicsConfiguration configuration;
 
     @Getter(PROTECTED)
     @Setter(PROTECTED)
-    private StandardOutcomeTopicUploadingDescriptor<O, P> descriptor;
+    private KafkaOutcomeTopicLoadingDescriptor<O, P> descriptor;
 
     @Getter(PROTECTED)
     @NotNull
@@ -155,8 +156,14 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void initDescriptor() {
-        setDescriptor(getConfiguration().get(outcomeTopicName()));
+        final var descriptor = this.getConfiguration().get(outcomeTopicName());
+        if (descriptor instanceof KafkaOutcomeTopicLoadingDescriptor) {
+            setDescriptor((KafkaOutcomeTopicLoadingDescriptor<O, P>) descriptor);
+        } else {
+            throw new ChannelConfigurationException("Descriptor is unsupported type " + descriptor.getClass().getSimpleName() + "; wait type is " + KafkaOutcomeTopicLoadingDescriptor.class.getSimpleName());
+        }
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
@@ -217,7 +224,7 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
      * @throws QuikConnectorException Ошибки работы с Connector-ом.
      */
     @Override
-    public void load(SimpleOnIterationExecuteEvent iterationExecuteEvent)
+    public void load(SimpleWorkerOnIterationExecuteEvent iterationExecuteEvent)
             throws Exception {
         if (this.needReload()) {
             final var thePackage = this.getPackage(this.getLastIndex() + 1, this.getPackageSize());
