@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.datacontrollers.ProviderDataController;
-import ru.gx.simpleworker.SimpleWorker;
-import ru.gx.simpleworker.SimpleWorkerOnIterationExecuteEvent;
-import ru.gx.simpleworker.SimpleWorkerOnStartingExecuteEvent;
-import ru.gx.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
+import ru.gx.core.simpleworker.SimpleWorker;
+import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
+import ru.gx.core.simpleworker.SimpleWorkerOnStartingExecuteEvent;
+import ru.gx.core.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
 
 import java.io.IOException;
 import java.util.List;

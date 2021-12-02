@@ -2,26 +2,26 @@ package ru.gx.fin.gate.quik.converters;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.gx.data.AbstractDtoFromDtoConverter;
-import ru.gx.data.NotAllowedObjectUpdateException;
+import ru.gx.core.data.AbstractDtoFromDtoConverter;
+import ru.gx.core.data.NotAllowedObjectUpdateException;
+import ru.gx.core.utils.BigDecimalUtils;
+import ru.gx.core.utils.StringUtils;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikDeal;
 import ru.gx.fin.gate.quik.provider.out.QuikDeal;
 import ru.gx.fin.gate.quik.provider.out.QuikDealDirection;
-import ru.gx.utils.BigDecimalUtils;
-import ru.gx.utils.StringUtils;
 
 import java.math.BigDecimal;
 
 public class QuikDealFromOriginalQuikDealConverter extends AbstractDtoFromDtoConverter<QuikDeal, OriginalQuikDeal> {
     @Override
     @Nullable
-    public QuikDeal findDtoBySource(@Nullable OriginalQuikDeal source) {
+    public QuikDeal findDtoBySource(@Nullable final OriginalQuikDeal source) {
         return null;
     }
 
     @Override
     @NotNull
-    public QuikDeal createDtoBySource(@NotNull OriginalQuikDeal source) {
+    public QuikDeal createDtoBySource(@NotNull final OriginalQuikDeal source) {
         return new QuikDeal(
                 source.getRowIndex(),
                 source.getExchangeCode(),
@@ -76,12 +76,12 @@ public class QuikDealFromOriginalQuikDealConverter extends AbstractDtoFromDtoCon
     }
 
     @Override
-    public boolean isDestinationUpdatable(@NotNull QuikDeal destination) {
+    public boolean isDestinationUpdatable(@NotNull final QuikDeal destination) {
         return false;
     }
 
     @Override
-    public void updateDtoBySource(@NotNull QuikDeal destination, @NotNull OriginalQuikDeal source) throws NotAllowedObjectUpdateException {
+    public void updateDtoBySource(@NotNull final QuikDeal destination, @NotNull final OriginalQuikDeal source) throws NotAllowedObjectUpdateException {
         throw new NotAllowedObjectUpdateException(QuikDeal.class, null);
     }
 }

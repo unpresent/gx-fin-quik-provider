@@ -1,6 +1,6 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
-import ru.gx.simpleworker.SimpleWorkerOnIterationExecuteEvent;
+import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 
 /**
  * Управление каким-то одним потоком данных:

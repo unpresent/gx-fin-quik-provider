@@ -11,15 +11,15 @@
 
     <properties>
         <encoding>UTF-8</encoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <gx-starter.version>1.2</gx-starter.version>
         <gx-kafka-starter.version>1.2</gx-kafka-starter.version>
         <gx-fin-quik-gateway.version>1.2</gx-fin-quik-gateway.version>
         <gx-fin-quik-provider-out-api.version>1.2</gx-fin-quik-provider-out-api.version>
 
-        <org.springframework.boot.version>2.5.5</org.springframework.boot.version>
+        <org.springframework.boot.version>2.6.0</org.springframework.boot.version>
         <org.springframework.kafka.version>2.7.0</org.springframework.kafka.version>
         <org.testcontainers.version>1.16.0</org.testcontainers.version>
 
@@ -48,12 +48,12 @@
         </dependency>
 
         <dependency>
-            <groupId>ru.gx</groupId>
+            <groupId>ru.gx.core</groupId>
             <artifactId>gx-starter</artifactId>
             <version>${gx-starter.version}</version>
         </dependency>
         <dependency>
-            <groupId>ru.gx</groupId>
+            <groupId>ru.gx.core</groupId>
             <artifactId>gx-kafka-starter</artifactId>
             <version>${gx-kafka-starter.version}</version>
         </dependency>

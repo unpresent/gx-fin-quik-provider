@@ -2,22 +2,14 @@ package ru.gx.fin.gate.quik.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.LongSerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaAdmin;
-import ru.gx.channels.ChannelMessageMode;
-import ru.gx.channels.ChannelsConfiguration;
-import ru.gx.channels.ChannelsConfigurator;
-import ru.gx.channels.SerializeMode;
+import ru.gx.core.settings.StandardSettingsController;
 import ru.gx.fin.gate.quik.converters.QuikAllTradeFromOriginalQuikAllTradeConverter;
 import ru.gx.fin.gate.quik.converters.QuikDealFromOriginalQuikDealConverter;
 import ru.gx.fin.gate.quik.converters.QuikOrderFromOriginalQuikOrderConverter;
@@ -25,25 +17,15 @@ import ru.gx.fin.gate.quik.converters.QuikSecurityFromOriginalQuikSecurityConver
 import ru.gx.fin.gate.quik.datacontrollers.*;
 import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
-import ru.gx.fin.gate.quik.provider.out.*;
-import ru.gx.kafka.upload.KafkaOutcomeTopicLoadingDescriptor;
-import ru.gx.kafka.upload.SimpleKafkaOutcomeTopicsConfiguration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
-import static lombok.AccessLevel.PROTECTED;
-
-@EnableConfigurationProperties({ConfigurationPropertiesKafka.class, ConfigurationPropertiesQuik.class})
-public class CommonConfig implements ChannelsConfigurator {
+@EnableConfigurationProperties({ConfigurationPropertiesServiceKafka.class, ConfigurationPropertiesQuik.class})
+public abstract class CommonConfig {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Common">
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderSettingsContainer settings;
-
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper().registerModule(new JavaTimeModule());
@@ -54,8 +36,9 @@ public class CommonConfig implements ChannelsConfigurator {
     // <editor-fold desc="Provider & Settings">
     // TODO: Должно создаваться в gx-fin-quik-gateway.
     @Bean
-    public QuikProviderSettingsContainer quikProviderSettingsController() {
-        return new QuikProviderSettingsContainer();
+    @Autowired
+    public QuikProviderSettingsContainer quikProviderSettingsController(@NotNull final StandardSettingsController standardSettingsController) {
+        return new QuikProviderSettingsContainer(standardSettingsController);
     }
 
     @Bean
@@ -127,7 +110,7 @@ public class CommonConfig implements ChannelsConfigurator {
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Kafka Producer">
-    @Value(value = "${kafka.server}")
+    @Value(value = "${service.kafka.server}")
     private String kafkaServer;
 
     @Bean
@@ -137,53 +120,9 @@ public class CommonConfig implements ChannelsConfigurator {
         return new KafkaAdmin(configs);
     }
 
-    private Properties producerProperties() {
-        final var props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServer);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return props;
-    }
-    // </editor-fold>
-    // -----------------------------------------------------------------------------------------------------------------
-    // <editor-fold desc="Kafka Producer">
-
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void configureChannels(@NotNull ChannelsConfiguration configuration) {
-        if (configuration instanceof SimpleKafkaOutcomeTopicsConfiguration) {
-            final var config = (SimpleKafkaOutcomeTopicsConfiguration)configuration;
-            config.getDescriptorsDefaults()
-                    .setProducerProperties(producerProperties())
-                    .setSerializeMode(SerializeMode.JsonString)
-                    .setMessageMode(ChannelMessageMode.Package);
-
-            config
-                    .newDescriptor(this.settings.getOutcomeTopicAllTrades(), KafkaOutcomeTopicLoadingDescriptor.class)
-                    .setDataObjectClass(QuikAllTrade.class)
-                    .setDataPackageClass(QuikAllTradesPackage.class)
-                    .init();
-
-            config
-                    .newDescriptor(this.settings.getOutcomeTopicOrders(), KafkaOutcomeTopicLoadingDescriptor.class)
-                    .setDataObjectClass(QuikOrder.class)
-                    .setDataPackageClass(QuikOrdersPackage.class)
-                    .init();
-
-            configuration
-                    .newDescriptor(this.settings.getOutcomeTopicDeals(), KafkaOutcomeTopicLoadingDescriptor.class)
-                    .setDataObjectClass(QuikDeal.class)
-                    .setDataPackageClass(QuikOrdersPackage.class)
-                    .init();
-
-            configuration
-                    .newDescriptor(this.settings.getOutcomeTopicSecurities(), KafkaOutcomeTopicLoadingDescriptor.class)
-                    .setDataObjectClass(QuikSecurity.class)
-                    .setDataPackageClass(QuikSecuritiesPackage.class)
-                    .init();
-
-        }
+    @Bean
+    public ChannelsConfiguratorImpl quikChannelsConfigurator() {
+        return new ChannelsConfiguratorImpl();
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------

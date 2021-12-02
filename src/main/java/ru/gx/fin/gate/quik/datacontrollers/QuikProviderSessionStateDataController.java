@@ -4,12 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
-import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.fin.gate.quik.provider.out.QuikSessionState;
-import ru.gx.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -24,13 +23,6 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikProviderSettingsContainer settings;
-
-    /**
-     * Ссылка на сам Провайдер, получаем в конструкторе
-     */
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProvider provider;
 
     /**
      * Ссылка на коннектор, получаем из провайдера
@@ -53,9 +45,6 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
 
     @PostConstruct
     public void postInit() {
-        if (this.provider == null) {
-            log.error("this.provider == null");
-        }
         if (this.connector == null) {
             log.error("this.connector == null");
         }

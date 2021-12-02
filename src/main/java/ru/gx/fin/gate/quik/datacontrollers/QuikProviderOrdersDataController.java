@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.gx.data.NotAllowedObjectUpdateException;
+import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.converters.QuikOrderFromOriginalQuikOrderConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.provider.out.QuikOrder;

@@ -10,9 +10,18 @@ service:
     min-time-per-iteration-ms: 1000
     timeout-runner-life-ms: 60000
     print-statistics-every-ms: 1000
-  outcome-topics:
-    simple-configuration.enabled: true
-    standard-uploader.enabled: true
+  channels:
+    configurator-caller:
+      enabled: true
+  kafka:
+    server: localhost:9092
+    outcome-topics:
+      simple-configuration.enabled: true
+      standard-uploader.enabled: true
+      all-trades: quikProviderAllTrades
+      deals: quikProviderDeals
+      orders: quikProviderOrders
+      securities: quikProviderSecurities
 
 # Логирование
 logging:
@@ -33,15 +42,6 @@ quik:
   attempts-on-connect: 20
   pause-on-connect-ms: 3000
   interval-mandatory-read-state-ms: 5000
-
-#kafka
-kafka:
-  server: localhost:9092
-  outcome-topics:
-    all-trades: quikProviderAllTrades
-    deals: quikProviderDeals
-    orders: quikProviderOrders
-    securities: quikProviderSecurities
 
 spring:
   jackson:

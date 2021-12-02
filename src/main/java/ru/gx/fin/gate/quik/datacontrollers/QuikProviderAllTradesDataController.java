@@ -1,17 +1,19 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
-import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.gx.data.NotAllowedObjectUpdateException;
+import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.converters.QuikAllTradeFromOriginalQuikAllTradeConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.provider.out.QuikAllTrade;
 import ru.gx.fin.gate.quik.provider.out.QuikAllTradesPackage;
 
 import java.io.IOException;
+
+import static lombok.AccessLevel.PROTECTED;
 
 /**
  * Контролер чтения анонимных сделок
@@ -20,7 +22,8 @@ import java.io.IOException;
 public class QuikProviderAllTradesDataController
         extends AbstractQuikProviderDataController<QuikAllTrade, QuikAllTradesPackage> {
 
-    @Setter(value = AccessLevel.PROTECTED, onMethod_ = @Autowired)
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikAllTradeFromOriginalQuikAllTradeConverter converter;
 
     public QuikProviderAllTradesDataController() {

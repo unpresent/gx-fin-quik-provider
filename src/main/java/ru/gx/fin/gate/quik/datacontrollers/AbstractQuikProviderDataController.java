@@ -1,6 +1,5 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,19 +7,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.header.Header;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.gx.channels.ChannelConfigurationException;
+import ru.gx.core.channels.ChannelConfigurationException;
+import ru.gx.core.kafka.LongHeader;
+import ru.gx.core.kafka.upload.KafkaOutcomeTopicLoadingDescriptor;
+import ru.gx.core.kafka.upload.KafkaOutcomeTopicsUploader;
+import ru.gx.core.kafka.upload.SimpleKafkaOutcomeTopicsConfiguration;
+import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
-import ru.gx.fin.gate.quik.provider.QuikProvider;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.fin.gate.quik.provider.internal.QuikStandardDataObject;
 import ru.gx.fin.gate.quik.provider.internal.QuikStandardDataPackage;
-import ru.gx.kafka.LongHeader;
-import ru.gx.kafka.upload.KafkaOutcomeTopicLoadingDescriptor;
-import ru.gx.kafka.upload.KafkaOutcomeTopicsUploader;
-import ru.gx.kafka.upload.SimpleKafkaOutcomeTopicsConfiguration;
-import ru.gx.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -39,9 +37,13 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
         implements ProviderDataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields & Properties">
+
+    /**
+     * Ссылка на коннектор, получаем из провайдера
+     */
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ObjectMapper objectMapper;
+    private QuikConnector connector;
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
@@ -70,20 +72,6 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
     @Getter(PROTECTED)
     @NotNull
     private final LongHeader headerLastIndex;
-
-    /**
-     * Ссылка на сам Провайдер, получаем в конструкторе
-     */
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProvider provider;
-
-    /**
-     * Ссылка на коннектор, получаем из провайдера
-     */
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikConnector connector;
 
     /**
      * Индекс (который этой записи присвоил Quik) последней записи, прочитанной из Quik-а.
@@ -142,9 +130,6 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
 
     @PostConstruct
     public void postInit() {
-        if (this.provider == null) {
-            throw new InvalidParameterException("this.provider == null");
-        }
         if (this.connector == null) {
             throw new InvalidParameterException("this.connector == null");
         }

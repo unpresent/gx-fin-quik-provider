@@ -1,29 +1,27 @@
 package ru.gx.fin.gate.quik.converters;
 
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.gx.data.AbstractDtoFromDtoConverter;
-import ru.gx.data.NotAllowedObjectUpdateException;
-import ru.gx.fin.gate.quik.errors.ProviderException;
+import ru.gx.core.data.AbstractDtoFromDtoConverter;
+import ru.gx.core.data.NotAllowedObjectUpdateException;
+import ru.gx.core.utils.BigDecimalUtils;
+import ru.gx.core.utils.StringUtils;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikSecurity;
 import ru.gx.fin.gate.quik.provider.out.QuikOrder;
 import ru.gx.fin.gate.quik.provider.out.QuikSecurity;
-import ru.gx.utils.BigDecimalUtils;
-import ru.gx.utils.StringUtils;
 
 import java.math.BigDecimal;
 
 public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFromDtoConverter<QuikSecurity, OriginalQuikSecurity> {
     @Override
     @Nullable
-    public QuikSecurity findDtoBySource(@Nullable OriginalQuikSecurity source) {
+    public QuikSecurity findDtoBySource(@Nullable final OriginalQuikSecurity source) {
         return null;
     }
 
     @Override
     @NotNull
-    public QuikSecurity createDtoBySource(@NotNull OriginalQuikSecurity source) {
+    public QuikSecurity createDtoBySource(@NotNull final OriginalQuikSecurity source) {
         return new QuikSecurity(
                 source.getRowIndex(),
                 source.getCode(),

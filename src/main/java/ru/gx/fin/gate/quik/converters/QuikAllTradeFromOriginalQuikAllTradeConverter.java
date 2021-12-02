@@ -2,13 +2,13 @@ package ru.gx.fin.gate.quik.converters;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.gx.data.AbstractDtoFromDtoConverter;
-import ru.gx.data.NotAllowedObjectUpdateException;
+import ru.gx.core.data.AbstractDtoFromDtoConverter;
+import ru.gx.core.data.NotAllowedObjectUpdateException;
+import ru.gx.core.utils.BigDecimalUtils;
+import ru.gx.core.utils.StringUtils;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikAllTrade;
 import ru.gx.fin.gate.quik.provider.out.QuikAllTrade;
 import ru.gx.fin.gate.quik.provider.out.QuikDealDirection;
-import ru.gx.utils.BigDecimalUtils;
-import ru.gx.utils.StringUtils;
 
 import java.math.BigDecimal;
 

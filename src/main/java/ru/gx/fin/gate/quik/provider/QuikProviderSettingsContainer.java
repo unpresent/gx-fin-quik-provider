@@ -1,14 +1,12 @@
 package ru.gx.fin.gate.quik.provider;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.gx.fin.gate.quik.config.ConfigurationPropertiesKafka;
+import ru.gx.core.settings.StandardSettingsController;
+import ru.gx.core.settings.UnknownApplicationSettingException;
+import ru.gx.fin.gate.quik.config.ConfigurationPropertiesServiceKafka;
 import ru.gx.fin.gate.quik.config.ConfigurationPropertiesQuik;
-import ru.gx.settings.StandardSettingsController;
-import ru.gx.settings.UnknownApplicationSettingException;
 
 import javax.annotation.PostConstruct;
 
@@ -17,9 +15,13 @@ import static lombok.AccessLevel.PROTECTED;
 @Slf4j
 public class QuikProviderSettingsContainer {
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     @NotNull
-    private StandardSettingsController standardSettingsController;
+    private final StandardSettingsController standardSettingsController;
+
+    public QuikProviderSettingsContainer(@NotNull final StandardSettingsController standardSettingsController) {
+        super();
+        this.standardSettingsController = standardSettingsController;
+    }
 
     @PostConstruct
     public void init() throws UnknownApplicationSettingException {
@@ -27,10 +29,10 @@ public class QuikProviderSettingsContainer {
         this.standardSettingsController.loadIntegerSetting(ConfigurationPropertiesQuik.PAUSE_ON_CONNECT_MS);
         this.standardSettingsController.loadIntegerSetting(ConfigurationPropertiesQuik.INTERVAL_MANDATORY_READ_STATE_MS);
 
-        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesKafka.OUTCOME_TOPIC_ALL_TRADES);
-        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesKafka.OUTCOME_TOPIC_DEALS);
-        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesKafka.OUTCOME_TOPIC_ORDERS);
-        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesKafka.OUTCOME_TOPIC_SECURITIES);
+        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ALL_TRADES);
+        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_DEALS);
+        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ORDERS);
+        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_SECURITIES);
     }
 
     public int getAttemptsOnConnect() {
@@ -46,18 +48,18 @@ public class QuikProviderSettingsContainer {
     }
 
     public String getOutcomeTopicAllTrades() {
-        return this.standardSettingsController.getStringSetting(ConfigurationPropertiesKafka.OUTCOME_TOPIC_ALL_TRADES);
+        return this.standardSettingsController.getStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ALL_TRADES);
     }
 
     public String getOutcomeTopicDeals() {
-        return this.standardSettingsController.getStringSetting(ConfigurationPropertiesKafka.OUTCOME_TOPIC_DEALS);
+        return this.standardSettingsController.getStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_DEALS);
     }
 
     public String getOutcomeTopicOrders() {
-        return this.standardSettingsController.getStringSetting(ConfigurationPropertiesKafka.OUTCOME_TOPIC_ORDERS);
+        return this.standardSettingsController.getStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ORDERS);
     }
 
     public String getOutcomeTopicSecurities() {
-        return this.standardSettingsController.getStringSetting(ConfigurationPropertiesKafka.OUTCOME_TOPIC_SECURITIES);
+        return this.standardSettingsController.getStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_SECURITIES);
     }
 }
