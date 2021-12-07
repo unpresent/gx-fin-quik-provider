@@ -18,10 +18,10 @@ service:
     outcome-topics:
       simple-configuration.enabled: true
       standard-uploader.enabled: true
-      all-trades: quikProviderAllTrades
-      deals: quikProviderDeals
-      orders: quikProviderOrders
-      securities: quikProviderSecurities
+      all-trades: quik.provider-all-trades
+      deals: quik.provider-deals
+      orders: quik.provider-orders
+      securities: quik.provider-securities
 
 # Логирование
 logging:
@@ -32,7 +32,7 @@ logging:
 
 # Настройки Сервера
 server:
-  port: 7001
+  port: 7101
 
 #quik
 quik:

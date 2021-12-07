@@ -11,6 +11,7 @@ import ru.gx.fin.gate.quik.provider.out.QuikOrder;
 import ru.gx.fin.gate.quik.provider.out.QuikSecurity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFromDtoConverter<QuikSecurity, OriginalQuikSecurity> {
     @Override
@@ -24,6 +25,7 @@ public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFr
     public QuikSecurity createDtoBySource(@NotNull final OriginalQuikSecurity source) {
         return new QuikSecurity(
                 source.getRowIndex(),
+                LocalDate.now(), // TODO: Возможно ли брать дату последней торговой сессии из Quik*-а ?
                 source.getCode(),
                 StringUtils.nullIf(source.getName(), ""),
                 StringUtils.nullIf(source.getShortName(), ""),
@@ -32,7 +34,7 @@ public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFr
                 BigDecimalUtils.nullIf(source.getFaceValue(), BigDecimal.ZERO),
                 StringUtils.nullIf(source.getFaceUnit(), ""),
                 source.getScale(),
-                source.getMaturityDate(),
+                LocalDate.of(1900, 1, 1).plusDays(source.getMaturityDate()), // TODO: Проверить, правильно ли берется "ноль" у quik даты.
                 source.getLotSize(),
                 StringUtils.nullIf(source.getIsinCode(), ""),
                 source.getMinPriceStep()

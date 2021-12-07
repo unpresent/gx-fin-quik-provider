@@ -5,12 +5,12 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import ru.gx.fin.gate.quik.connector.QuikConnector;
-import ru.gx.fin.gate.quik.datacontrollers.ProviderDataController;
 import ru.gx.core.simpleworker.SimpleWorker;
 import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStartingExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
+import ru.gx.fin.gate.quik.connector.QuikConnector;
+import ru.gx.fin.gate.quik.datacontrollers.ProviderDataController;
 
 import java.io.IOException;
 import java.util.List;

@@ -29,10 +29,10 @@ public class QuikProviderSettingsContainer {
         this.standardSettingsController.loadIntegerSetting(ConfigurationPropertiesQuik.PAUSE_ON_CONNECT_MS);
         this.standardSettingsController.loadIntegerSetting(ConfigurationPropertiesQuik.INTERVAL_MANDATORY_READ_STATE_MS);
 
-        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ALL_TRADES);
-        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_DEALS);
-        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ORDERS);
-        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_SECURITIES);
+        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ALL_TRADES, ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ALL_TRADES_DEFAULT_VALUE);
+        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_DEALS, ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_DEALS_DEFAULT_VALUE);
+        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ORDERS, ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_ORDERS_DEFAULT_VALUE);
+        this.standardSettingsController.loadStringSetting(ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_SECURITIES, ConfigurationPropertiesServiceKafka.OUTCOME_TOPIC_SECURITIES_DEFAULT_VALUE);
     }
 
     public int getAttemptsOnConnect() {
