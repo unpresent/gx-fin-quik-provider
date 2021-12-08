@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@EnableConfigurationProperties({ConfigurationPropertiesServiceKafka.class, ConfigurationPropertiesQuik.class})
+@EnableConfigurationProperties({ConfigurationPropertiesQuik.class})
 public abstract class CommonConfig {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Common">

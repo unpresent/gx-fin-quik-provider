@@ -16,7 +16,6 @@ import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
-import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.fin.gate.quik.provider.internal.QuikStandardDataObject;
 import ru.gx.fin.gate.quik.provider.internal.QuikStandardDataPackage;
 
@@ -26,6 +25,7 @@ import java.security.InvalidParameterException;
 import java.util.HashMap;
 
 import static lombok.AccessLevel.PROTECTED;
+import static lombok.AccessLevel.PUBLIC;
 
 /**
  * Шаблон реализации контролера чтения стандартного потока данных
@@ -43,52 +43,51 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
      */
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    @NotNull
     private QuikConnector connector;
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderSettingsContainer settings;
+    @NotNull
+    private KafkaOutcomeTopicsUploader kafkaUploader;
 
     @Getter(PROTECTED)
-    @Setter(value = AccessLevel.PROTECTED, onMethod_ = @Autowired)
-    private KafkaOutcomeTopicsUploader uploader;
-
-    @Getter(PROTECTED)
-    @Setter(value = AccessLevel.PROTECTED, onMethod_ = @Autowired)
-    private SimpleKafkaOutcomeTopicsConfiguration configuration;
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    @NotNull
+    private SimpleKafkaOutcomeTopicsConfiguration kafkaConfiguration;
 
     @Getter(PROTECTED)
     @Setter(PROTECTED)
-    private KafkaOutcomeTopicLoadingDescriptor<O, P> descriptor;
+    private KafkaOutcomeTopicLoadingDescriptor<O, P> kafkaDescriptor;
 
     @Getter(PROTECTED)
     @NotNull
-    private final HashMap<String, Header> headers;
+    private final HashMap<String, Header> kafkaHeaders;
 
     @Getter(PROTECTED)
     @NotNull
-    private final LongHeader headerAllCount;
+    private final LongHeader kafkaHeaderAllCount;
 
     @Getter(PROTECTED)
     @NotNull
-    private final LongHeader headerLastIndex;
+    private final LongHeader kafkaHeaderLastIndex;
 
     /**
      * Индекс (который этой записи присвоил Quik) последней записи, прочитанной из Quik-а.
      */
-    @Getter(PROTECTED)
+    @Getter(PUBLIC)
     private long lastIndex;
 
     /**
      * Всего записей в данной таблице в Quik-е
      */
-    @Getter(PROTECTED)
+    @Getter(PUBLIC)
     private long allCount;
 
     /**
      * Лимит количества записей в пакете - указание для Quik-а, чтобы он в пакет нам давал не более
      */
-    @Getter(PROTECTED)
+    @Getter(PUBLIC)
     private int packageSize;
 
     /**
@@ -116,11 +115,11 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
         super();
         this.lastIndex = -1;
         this.allCount = 0;
-        this.headers = new HashMap<>();
-        this.headerAllCount = new LongHeader(headerKeyAllCount, 0);
-        this.headers.put(headerKeyAllCount, this.headerAllCount);
-        this.headerLastIndex = new LongHeader(headerKeyLastIndex, 0);
-        this.headers.put(headerKeyLastIndex, this.headerLastIndex);
+        this.kafkaHeaders = new HashMap<>();
+        this.kafkaHeaderAllCount = new LongHeader(headerKeyAllCount, 0);
+        this.kafkaHeaders.put(headerKeyAllCount, this.kafkaHeaderAllCount);
+        this.kafkaHeaderLastIndex = new LongHeader(headerKeyLastIndex, 0);
+        this.kafkaHeaders.put(headerKeyLastIndex, this.kafkaHeaderLastIndex);
     }
 
     public void init(int packageSize, int intervalWaitOnNextLoad) {
@@ -128,24 +127,11 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
         this.intervalWaitOnNextLoad = intervalWaitOnNextLoad;
     }
 
-    @PostConstruct
-    public void postInit() {
-        if (this.connector == null) {
-            throw new InvalidParameterException("this.connector == null");
-        }
-        if (this.settings == null) {
-            throw new InvalidParameterException("this.settings == null");
-        }
-        if (this.uploader == null) {
-            throw new InvalidParameterException("this.uploader == null");
-        }
-    }
-
     @SuppressWarnings("unchecked")
     protected void initDescriptor() {
-        final var descriptor = this.getConfiguration().get(outcomeTopicName());
+        final var descriptor = this.getKafkaConfiguration().get(outcomeTopicName());
         if (descriptor instanceof KafkaOutcomeTopicLoadingDescriptor) {
-            setDescriptor((KafkaOutcomeTopicLoadingDescriptor<O, P>) descriptor);
+            setKafkaDescriptor((KafkaOutcomeTopicLoadingDescriptor<O, P>) descriptor);
         } else {
             throw new ChannelConfigurationException("Descriptor is unsupported type " + descriptor.getClass().getSimpleName() + "; wait type is " + KafkaOutcomeTopicLoadingDescriptor.class.getSimpleName());
         }
@@ -172,16 +158,16 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
         this.lastReadMilliseconds = System.currentTimeMillis();
 
         if (allCountChanged || standardPackage.size() > 0) {
-            if (getDescriptor() == null) {
+            if (getKafkaDescriptor() == null) {
                 initDescriptor();
             }
 
-            this.headerAllCount.setValue(standardPackage.allCount);
-            this.headerLastIndex.setValue(this.lastIndex);
-            final var offset = uploader.uploadDataPackage(
-                    getDescriptor(),
+            this.kafkaHeaderAllCount.setValue(standardPackage.allCount);
+            this.kafkaHeaderLastIndex.setValue(this.lastIndex);
+            final var offset = kafkaUploader.uploadDataPackage(
+                    getKafkaDescriptor(),
                     standardPackage,
-                    getHeaders().values()
+                    getKafkaHeaders().values()
             );
             log.info("Loaded {}, packageSize = {}, lastIndex = {} / allCount = {}; Uploaded (p:{}, o:{})", standardPackage.getClass().getSimpleName(), n, this.lastIndex, this.allCount, offset.getPartition(), offset.getOffset());
         } else {

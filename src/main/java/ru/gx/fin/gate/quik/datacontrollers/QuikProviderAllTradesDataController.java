@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.converters.QuikAllTradeFromOriginalQuikAllTradeConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
+import ru.gx.fin.gate.quik.provider.config.QuikProviderChannelsNames;
 import ru.gx.fin.gate.quik.provider.out.QuikAllTrade;
 import ru.gx.fin.gate.quik.provider.out.QuikAllTradesPackage;
 
@@ -33,7 +34,7 @@ public class QuikProviderAllTradesDataController
 
     @Override
     protected String outcomeTopicName() {
-        return this.getSettings().getOutcomeTopicAllTrades();
+        return QuikProviderChannelsNames.Streams.ALL_TRADES;
     }
 
     @SneakyThrows(NotAllowedObjectUpdateException.class)

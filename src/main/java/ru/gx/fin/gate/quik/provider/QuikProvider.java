@@ -11,6 +11,7 @@ import ru.gx.core.simpleworker.SimpleWorkerOnStartingExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.datacontrollers.ProviderDataController;
+import ru.gx.fin.gate.quik.datacontrollers.QuikProviderSecuritiesDataController;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,6 +37,11 @@ public class QuikProvider {
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private List<ProviderDataController> dataControllers;
+
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    private QuikProviderSecuritiesDataController quikProviderSecuritiesDataController;
+
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     @EventListener(SimpleWorkerOnStartingExecuteEvent.class)
@@ -65,6 +71,7 @@ public class QuikProvider {
             if (!internalCheckConnected(event)) {
                 return;
             }
+
             for (var dataController : this.dataControllers) {
                 this.simpleWorker.runnerIsLifeSet();
                 dataController.load(event);

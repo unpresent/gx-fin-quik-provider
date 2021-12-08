@@ -1,6 +1,6 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
-import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.converters.QuikDealFromOriginalQuikDealConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
+import ru.gx.fin.gate.quik.provider.config.QuikProviderChannelsNames;
 import ru.gx.fin.gate.quik.provider.out.QuikDeal;
 import ru.gx.fin.gate.quik.provider.out.QuikDealsPackage;
 
 import java.io.IOException;
+
+import static lombok.AccessLevel.PROTECTED;
 
 /**
  * Контролер чтения сделок
@@ -20,7 +23,8 @@ import java.io.IOException;
 public class QuikProviderDealsDataController
         extends AbstractQuikProviderDataController<QuikDeal, QuikDealsPackage> {
 
-    @Setter(value = AccessLevel.PROTECTED, onMethod_ = @Autowired)
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikDealFromOriginalQuikDealConverter converter;
 
     public QuikProviderDealsDataController() {
@@ -30,7 +34,7 @@ public class QuikProviderDealsDataController
 
     @Override
     protected String outcomeTopicName() {
-        return this.getSettings().getOutcomeTopicDeals();
+        return QuikProviderChannelsNames.Streams.DEALS;
     }
 
     @SneakyThrows(NotAllowedObjectUpdateException.class)

@@ -9,23 +9,31 @@ import ru.gx.core.utils.StringUtils;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikSecurity;
 import ru.gx.fin.gate.quik.provider.out.QuikOrder;
 import ru.gx.fin.gate.quik.provider.out.QuikSecurity;
+import ru.gx.fin.gate.quik.provider.out.QuikSessionedSecurity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFromDtoConverter<QuikSecurity, OriginalQuikSecurity> {
+public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFromDtoConverter<QuikSessionedSecurity, OriginalQuikSecurity> {
     @Override
     @Nullable
-    public QuikSecurity findDtoBySource(@Nullable final OriginalQuikSecurity source) {
+    public QuikSessionedSecurity findDtoBySource(@Nullable final OriginalQuikSecurity source) {
         return null;
     }
 
     @Override
     @NotNull
-    public QuikSecurity createDtoBySource(@NotNull final OriginalQuikSecurity source) {
-        return new QuikSecurity(
+    public QuikSessionedSecurity createDtoBySource(@NotNull final OriginalQuikSecurity source) {
+        LocalDate maturityDate = null;
+        if (source.getMaturityDate() != 0) {
+            final int matY = (int) source.getMaturityDate() / 10000;
+            final int matM = (int) source.getMaturityDate() / 100 - matY * 100;
+            final int matD = (int) source.getMaturityDate() - matY * 10000 - matM * 100;
+            maturityDate = LocalDate.of(matY, matM, matD);
+        }
+        return new QuikSessionedSecurity(
                 source.getRowIndex(),
-                LocalDate.now(), // TODO: Возможно ли брать дату последней торговой сессии из Quik*-а ?
+                source.getSessionId(),
                 source.getCode(),
                 StringUtils.nullIf(source.getName(), ""),
                 StringUtils.nullIf(source.getShortName(), ""),
@@ -34,7 +42,7 @@ public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFr
                 BigDecimalUtils.nullIf(source.getFaceValue(), BigDecimal.ZERO),
                 StringUtils.nullIf(source.getFaceUnit(), ""),
                 source.getScale(),
-                LocalDate.of(1900, 1, 1).plusDays(source.getMaturityDate()), // TODO: Проверить, правильно ли берется "ноль" у quik даты.
+                maturityDate,
                 source.getLotSize(),
                 StringUtils.nullIf(source.getIsinCode(), ""),
                 source.getMinPriceStep()
@@ -42,12 +50,12 @@ public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFr
     }
 
     @Override
-    public boolean isDestinationUpdatable(@NotNull final QuikSecurity destination) {
+    public boolean isDestinationUpdatable(@NotNull final QuikSessionedSecurity destination) {
         return false;
     }
 
     @Override
-    public void updateDtoBySource(@NotNull final QuikSecurity destination, @NotNull final OriginalQuikSecurity source) throws NotAllowedObjectUpdateException {
+    public void updateDtoBySource(@NotNull final QuikSessionedSecurity destination, @NotNull final OriginalQuikSecurity source) throws NotAllowedObjectUpdateException {
         throw new NotAllowedObjectUpdateException(QuikOrder.class, null);
     }
 }
