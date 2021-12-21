@@ -1,6 +1,5 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,19 +8,21 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.gx.core.channels.ChannelConfigurationException;
 import ru.gx.core.kafka.LongHeader;
-import ru.gx.core.kafka.upload.KafkaOutcomeTopicLoadingDescriptor;
+import ru.gx.core.kafka.upload.KafkaOutcomeTopicUploadingDescriptor;
 import ru.gx.core.kafka.upload.KafkaOutcomeTopicsUploader;
-import ru.gx.core.kafka.upload.SimpleKafkaOutcomeTopicsConfiguration;
+import ru.gx.core.messaging.DefaultMessagesFactory;
+import ru.gx.core.messaging.Message;
+import ru.gx.core.messaging.MessageBody;
+import ru.gx.core.messaging.MessageHeader;
 import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
+import ru.gx.fin.gate.quik.config.KafkaOutcomeTopicsConfiguration;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.ProviderException;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
 import ru.gx.fin.gate.quik.provider.internal.QuikStandardDataObject;
 import ru.gx.fin.gate.quik.provider.internal.QuikStandardDataPackage;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 
 import static lombok.AccessLevel.PROTECTED;
@@ -33,7 +34,7 @@ import static lombok.AccessLevel.PUBLIC;
  * @param <P> тип пакета данных
  */
 @Slf4j
-public abstract class AbstractQuikProviderDataController<O extends QuikStandardDataObject, P extends QuikStandardDataPackage<O>>
+public abstract class AbstractQuikProviderDataController<M extends Message<? extends MessageHeader, ? extends MessageBody>, O extends QuikStandardDataObject, P extends QuikStandardDataPackage<O>>
         implements ProviderDataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields & Properties">
@@ -48,17 +49,21 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    private DefaultMessagesFactory messagesFactory;
+
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     @NotNull
     private KafkaOutcomeTopicsUploader kafkaUploader;
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
     @NotNull
-    private SimpleKafkaOutcomeTopicsConfiguration kafkaConfiguration;
+    private KafkaOutcomeTopicsConfiguration kafkaConfiguration;
 
     @Getter(PROTECTED)
     @Setter(PROTECTED)
-    private KafkaOutcomeTopicLoadingDescriptor<O, P> kafkaDescriptor;
+    private KafkaOutcomeTopicUploadingDescriptor<M> kafkaDescriptor;
 
     @Getter(PROTECTED)
     @NotNull
@@ -127,13 +132,12 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
         this.intervalWaitOnNextLoad = intervalWaitOnNextLoad;
     }
 
-    @SuppressWarnings("unchecked")
     protected void initDescriptor() {
         final var descriptor = this.getKafkaConfiguration().get(outcomeTopicName());
-        if (descriptor instanceof KafkaOutcomeTopicLoadingDescriptor) {
-            setKafkaDescriptor((KafkaOutcomeTopicLoadingDescriptor<O, P>) descriptor);
+        if (descriptor instanceof KafkaOutcomeTopicUploadingDescriptor) {
+            setKafkaDescriptor((KafkaOutcomeTopicUploadingDescriptor<M>) descriptor);
         } else {
-            throw new ChannelConfigurationException("Descriptor is unsupported type " + descriptor.getClass().getSimpleName() + "; wait type is " + KafkaOutcomeTopicLoadingDescriptor.class.getSimpleName());
+            throw new ChannelConfigurationException("Descriptor is unsupported type " + descriptor.getClass().getSimpleName() + "; wait type is " + KafkaOutcomeTopicUploadingDescriptor.class.getSimpleName());
         }
     }
     // </editor-fold>
@@ -145,6 +149,7 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
      *
      * @param standardPackage Пакет данных, который обрабатываем.
      */
+    @SuppressWarnings("unchecked")
     protected synchronized void proceedPackage(P standardPackage) throws Exception {
         var allCountChanged = false;
         final var n = standardPackage.size();
@@ -164,9 +169,13 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
 
             this.kafkaHeaderAllCount.setValue(standardPackage.allCount);
             this.kafkaHeaderLastIndex.setValue(this.lastIndex);
-            final var offset = kafkaUploader.uploadDataPackage(
+            final var messageType = this.kafkaDescriptor.getApi().getMessageType();
+            final var version = this.kafkaDescriptor.getApi().getVersion();
+            final var message = (M) this.messagesFactory.createByDataPackage(null, messageType, version, standardPackage, null);
+
+            final var offset = kafkaUploader.uploadMessage(
                     getKafkaDescriptor(),
-                    standardPackage,
+                    message,
                     getKafkaHeaders().values()
             );
             log.info("Loaded {}, packageSize = {}, lastIndex = {} / allCount = {}; Uploaded (p:{}, o:{})", standardPackage.getClass().getSimpleName(), n, this.lastIndex, this.allCount, offset.getPartition(), offset.getOffset());
@@ -195,8 +204,7 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
      * @throws QuikConnectorException Ошибки работы с Connector-ом.
      */
     @Override
-    public void load(SimpleWorkerOnIterationExecuteEvent iterationExecuteEvent)
-            throws Exception {
+    public void load(SimpleWorkerOnIterationExecuteEvent iterationExecuteEvent) throws Exception {
         if (this.needReload()) {
             final var thePackage = this.getPackage(this.getLastIndex() + 1, this.getPackageSize());
             proceedPackage(thePackage);
@@ -215,7 +223,11 @@ public abstract class AbstractQuikProviderDataController<O extends QuikStandardD
      */
     public boolean needReload() {
         final var now = System.currentTimeMillis();
-        return (this.allCount - 1 > this.lastIndex || now - this.lastReadMilliseconds > this.intervalWaitOnNextLoad);
+        if (getKafkaDescriptor() == null) {
+            initDescriptor();
+        }
+        return getKafkaDescriptor().isEnabled()
+                && (this.allCount - 1 > this.lastIndex || now - this.lastReadMilliseconds > this.intervalWaitOnNextLoad);
     }
 
     @Override

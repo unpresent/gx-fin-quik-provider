@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.converters.QuikDealFromOriginalQuikDealConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
-import ru.gx.fin.gate.quik.provider.config.QuikProviderChannelsNames;
+import ru.gx.fin.gate.quik.provider.config.QuikProviderChannelNames;
+import ru.gx.fin.gate.quik.provider.messages.QuikProviderStreamDealsPackageDataPublish;
 import ru.gx.fin.gate.quik.provider.out.QuikDeal;
 import ru.gx.fin.gate.quik.provider.out.QuikDealsPackage;
 
@@ -21,7 +22,7 @@ import static lombok.AccessLevel.PROTECTED;
  */
 @Slf4j
 public class QuikProviderDealsDataController
-        extends AbstractQuikProviderDataController<QuikDeal, QuikDealsPackage> {
+        extends AbstractQuikProviderDataController<QuikProviderStreamDealsPackageDataPublish, QuikDeal, QuikDealsPackage> {
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
@@ -34,7 +35,7 @@ public class QuikProviderDealsDataController
 
     @Override
     protected String outcomeTopicName() {
-        return QuikProviderChannelsNames.Streams.DEALS;
+        return QuikProviderChannelNames.Streams.DEALS_V1;
     }
 
     @SneakyThrows(NotAllowedObjectUpdateException.class)
@@ -42,6 +43,7 @@ public class QuikProviderDealsDataController
     protected QuikDealsPackage getPackage(long lastIndex, int packageSize) throws IOException, QuikConnectorException {
         final var originalPackage = this.getConnector().getDealsPackage(lastIndex, packageSize);
         final var result = new QuikDealsPackage();
+        result.allCount = originalPackage.getQuikAllCount();
         this.converter.fillDtoCollectionFromSource(result.getObjects(), originalPackage.getObjects());
         return result;
     }

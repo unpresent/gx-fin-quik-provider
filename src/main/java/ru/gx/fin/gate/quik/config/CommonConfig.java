@@ -121,8 +121,15 @@ public abstract class CommonConfig {
     }
 
     @Bean
-    public ChannelsConfiguratorImpl quikChannelsConfigurator() {
-        return new ChannelsConfiguratorImpl();
+    public KafkaOutcomeTopicsConfiguration kafkaOutcomeTopicsConfiguration() {
+        return new KafkaOutcomeTopicsConfiguration("kafka-outcome-config");
+    }
+    // </editor-fold>
+    // -----------------------------------------------------------------------------------------------------------------
+    // <editor-fold desc="Redis Producer">
+    @Bean
+    public RedisOutcomeCollectionsConfiguration redisOutcomeTopicsConfiguration() {
+        return new RedisOutcomeCollectionsConfiguration("redis-outcome-config");
     }
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------

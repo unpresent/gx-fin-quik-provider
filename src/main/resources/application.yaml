@@ -10,12 +10,17 @@ service:
     min-time-per-iteration-ms: 1000
     timeout-runner-life-ms: 60000
     print-statistics-every-ms: 1000
-  channels:
-    configurator-caller.enabled: true
+  channels-api:
+    quik-provider-snapshots:
+      securities-v1.enabled: true
+    quik-provider-streams:
+      securities-v1.enabled: true
+      orders-v1.enabled: true
+      deals-v1.enabled: true
+      all-trades-v1.enabled: true
   kafka:
     server: localhost:9092
     outcome-topics:
-      simple-configuration.enabled: true
       standard-uploader.enabled: true
   redis:
     outcome-collections:
