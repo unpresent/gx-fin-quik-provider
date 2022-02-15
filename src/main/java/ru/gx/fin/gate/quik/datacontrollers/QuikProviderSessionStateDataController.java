@@ -4,9 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
+import ru.gx.fin.gate.quik.events.QuikProviderDoCleanEvent;
 import ru.gx.fin.gate.quik.provider.QuikProviderSettingsContainer;
 import ru.gx.fin.gate.quik.provider.out.QuikSessionState;
 
@@ -23,6 +25,10 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikProviderSettingsContainer settings;
+
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    private ApplicationEventPublisher eventPublisher;
 
     /**
      * Ссылка на коннектор, получаем из провайдера
@@ -58,19 +64,25 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
 
         final var originalSessionState = this.connector.getSessionState();
         setLastReadSessionStateMs(System.currentTimeMillis());
-        setLastSessionState(
-                new QuikSessionState(
-                        originalSessionState.isConnected(),
-                        originalSessionState.getSessionId(),
-                        originalSessionState.getServerTime(),
-                        originalSessionState.getConnectionTime(),
-                        originalSessionState.getVersion(),
-                        originalSessionState.getConnection(),
-                        originalSessionState.getIpAddress(),
-                        originalSessionState.getIpPort(),
-                        originalSessionState.getIpComment()
-                )
+
+        final var newSessionState = new QuikSessionState(
+                originalSessionState.isConnected(),
+                originalSessionState.getSessionId(),
+                originalSessionState.getServerTime(),
+                originalSessionState.getConnectionTime(),
+                originalSessionState.getVersion(),
+                originalSessionState.getConnection(),
+                originalSessionState.getIpAddress(),
+                originalSessionState.getIpPort(),
+                originalSessionState.getIpComment()
         );
+
+        if (newSessionState.isConnected() && this.lastSessionState != null
+                && !newSessionState.getSessionId().equals(this.lastSessionState.getSessionId())) {
+            this.eventPublisher.publishEvent(new QuikProviderDoCleanEvent(this));
+        }
+
+        setLastSessionState(newSessionState);
         log.info("Loaded sessionState (isConnected = {}, serverTime = {})", originalSessionState.isConnected(), originalSessionState.getServerTime());
     }
 

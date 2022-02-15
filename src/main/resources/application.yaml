@@ -24,7 +24,6 @@ service:
       standard-uploader.enabled: true
   redis:
     outcome-collections:
-      simple-configuration.enabled: true
       standard-uploader.enabled: true
 
 

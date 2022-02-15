@@ -1,7 +1,5 @@
 package ru.gx.fin.gate.quik.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +24,6 @@ import java.util.List;
 public abstract class CommonConfig {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Common">
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper().registerModule(new JavaTimeModule());
-    }
-
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Provider & Settings">
@@ -67,7 +60,8 @@ public abstract class CommonConfig {
     @Bean
     public QuikSecurityFromOriginalQuikSecurityConverter quikSecurityFromOriginalQuikSecurityConverter() {
         return new QuikSecurityFromOriginalQuikSecurityConverter();
-    }    // </editor-fold>
+    }
+    // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="DataControllers">
     @Bean

@@ -45,6 +45,7 @@ public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFr
                 maturityDate,
                 source.getLotSize(),
                 StringUtils.nullIf(source.getIsinCode(), ""),
+                StringUtils.nullIf(source.getCurrencyId(), ""),
                 source.getMinPriceStep()
         );
     }

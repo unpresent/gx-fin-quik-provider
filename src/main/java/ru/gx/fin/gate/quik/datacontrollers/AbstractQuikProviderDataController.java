@@ -173,12 +173,12 @@ public abstract class AbstractQuikProviderDataController<M extends Message<? ext
             final var version = this.kafkaDescriptor.getApi().getVersion();
             final var message = (M) this.messagesFactory.createByDataPackage(null, messageType, version, standardPackage, null);
 
-            final var offset = kafkaUploader.uploadMessage(
+            kafkaUploader.uploadMessage(
                     getKafkaDescriptor(),
                     message,
                     getKafkaHeaders().values()
             );
-            log.info("Loaded {}, packageSize = {}, lastIndex = {} / allCount = {}; Uploaded (p:{}, o:{})", standardPackage.getClass().getSimpleName(), n, this.lastIndex, this.allCount, offset.getPartition(), offset.getOffset());
+            log.info("Loaded {}, packageSize = {}, lastIndex = {} / allCount = {}; Uploaded", standardPackage.getClass().getSimpleName(), n, this.lastIndex, this.allCount);
         } else {
             log.info("Loaded {}, packageSize = {}, lastIndex = {} / allCount = {}", standardPackage.getClass().getSimpleName(), n, this.lastIndex, this.allCount);
         }

@@ -12,6 +12,8 @@ import ru.gx.core.simpleworker.SimpleWorkerOnStoppingExecuteEvent;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.datacontrollers.ProviderDataController;
 import ru.gx.fin.gate.quik.datacontrollers.QuikProviderSecuritiesDataController;
+import ru.gx.fin.gate.quik.datacontrollers.QuikProviderSessionStateDataController;
+import ru.gx.fin.gate.quik.events.QuikProviderDoCleanEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,12 +42,17 @@ public class QuikProvider {
 
     @Getter(PROTECTED)
     @Setter(value = PROTECTED, onMethod_ = @Autowired)
+    private QuikProviderSessionStateDataController quikProviderSessionStateDataController;
+
+    @Getter(PROTECTED)
+    @Setter(value = PROTECTED, onMethod_ = @Autowired)
     private QuikProviderSecuritiesDataController quikProviderSecuritiesDataController;
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------
+    @SuppressWarnings("unused")
     @EventListener(SimpleWorkerOnStartingExecuteEvent.class)
-    public void startingExecute(SimpleWorkerOnStartingExecuteEvent __) {
+    public void startingExecute(SimpleWorkerOnStartingExecuteEvent event) {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
@@ -53,8 +60,9 @@ public class QuikProvider {
         }
     }
 
+    @SuppressWarnings("unused")
     @EventListener(SimpleWorkerOnStoppingExecuteEvent.class)
-    public void stoppingExecute(SimpleWorkerOnStoppingExecuteEvent __) {
+    public void stoppingExecute(SimpleWorkerOnStoppingExecuteEvent event) {
         try {
             this.connector.disconnect();
         } catch (IOException e) {
@@ -72,9 +80,30 @@ public class QuikProvider {
                 return;
             }
 
+            // Сначала загружаем State
+            this.quikProviderSessionStateDataController.load(event);
+            if (event.isNeedRestart() || event.isImmediateRunNextIteration() || event.isStopExecution()) {
+                return;
+            }
+
+            // Потом загружаем ЦБ
+            this.quikProviderSecuritiesDataController.load(event);
+            if (event.isNeedRestart() || event.isImmediateRunNextIteration() || event.isStopExecution()) {
+                return;
+            }
+
+            // Потом остальные
             for (var dataController : this.dataControllers) {
+                if (dataController == this.quikProviderSessionStateDataController
+                        || dataController == this.quikProviderSecuritiesDataController) {
+                    continue;
+                }
+
                 this.simpleWorker.runnerIsLifeSet();
                 dataController.load(event);
+                if (event.isNeedRestart() || event.isImmediateRunNextIteration() || event.isStopExecution()) {
+                    return;
+                }
             }
         } catch (Exception e) {
             internalTreatmentExceptionOnDataRead(event, e);
@@ -83,7 +112,9 @@ public class QuikProvider {
         }
     }
 
-    public void clean() {
+    @SuppressWarnings("unused")
+    @EventListener(QuikProviderDoCleanEvent.class)
+    public void doClean(QuikProviderDoCleanEvent event) {
         for (var dataController : this.dataControllers) {
             this.simpleWorker.runnerIsLifeSet();
             dataController.clean();

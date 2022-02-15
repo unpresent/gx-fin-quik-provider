@@ -93,6 +93,7 @@ public class QuikProviderSecuritiesDataController
                         source.getMaturityDate(),
                         source.getLotSize(),
                         source.getIsinCode(),
+                        source.getCurrencyId(),
                         source.getMinPriceStep()
                 );
                 destObjects.add(security);
