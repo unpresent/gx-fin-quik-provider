@@ -1,7 +1,9 @@
 package ru.gx.fin.gate.quik.converters;
 
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
 import ru.gx.core.data.AbstractDtoFromDtoConverter;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.core.utils.BigDecimalUtils;
@@ -12,6 +14,8 @@ import ru.gx.fin.gate.quik.provider.out.QuikOrder;
 
 import java.math.BigDecimal;
 
+@RequiredArgsConstructor
+@Component
 public class QuikOrderFromOriginalQuikOrderConverter extends AbstractDtoFromDtoConverter<QuikOrder, OriginalQuikOrder> {
     @Override
     @Nullable

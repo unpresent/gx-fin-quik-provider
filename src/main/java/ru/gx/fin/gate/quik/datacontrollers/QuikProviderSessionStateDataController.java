@@ -1,10 +1,12 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.fin.gate.quik.connector.QuikConnector;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
@@ -21,21 +23,23 @@ import static lombok.AccessLevel.PROTECTED;
  * Контролер чтения состояния сессии
  */
 @Slf4j
+@RequiredArgsConstructor
+@Component
 public class QuikProviderSessionStateDataController implements ProviderDataController {
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderSettingsContainer settings;
+    @NotNull
+    private final QuikProviderSettingsContainer settings;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private ApplicationEventPublisher eventPublisher;
+    @NotNull
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Ссылка на коннектор, получаем из провайдера
      */
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikConnector connector;
+    @NotNull
+    private final QuikConnector connector;
 
     @Getter
     @Setter(PROTECTED)
@@ -44,17 +48,6 @@ public class QuikProviderSessionStateDataController implements ProviderDataContr
     @Getter
     @Setter(PROTECTED)
     private long lastReadSessionStateMs;
-
-    public QuikProviderSessionStateDataController() {
-        super();
-    }
-
-    @PostConstruct
-    public void postInit() {
-        if (this.connector == null) {
-            log.error("this.connector == null");
-        }
-    }
 
     @Override
     public void load(SimpleWorkerOnIterationExecuteEvent iterationExecuteEvent) throws IOException, QuikConnectorException {

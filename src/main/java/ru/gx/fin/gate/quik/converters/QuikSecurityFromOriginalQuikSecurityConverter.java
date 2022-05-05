@@ -1,19 +1,22 @@
 package ru.gx.fin.gate.quik.converters;
 
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
 import ru.gx.core.data.AbstractDtoFromDtoConverter;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.core.utils.BigDecimalUtils;
 import ru.gx.core.utils.StringUtils;
 import ru.gx.fin.gate.quik.model.original.OriginalQuikSecurity;
 import ru.gx.fin.gate.quik.provider.out.QuikOrder;
-import ru.gx.fin.gate.quik.provider.out.QuikSecurity;
 import ru.gx.fin.gate.quik.provider.out.QuikSessionedSecurity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@RequiredArgsConstructor
+@Component
 public class QuikSecurityFromOriginalQuikSecurityConverter extends AbstractDtoFromDtoConverter<QuikSessionedSecurity, OriginalQuikSecurity> {
     @Override
     @Nullable

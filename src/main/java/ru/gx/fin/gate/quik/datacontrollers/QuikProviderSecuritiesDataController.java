@@ -1,11 +1,10 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.gx.core.data.DataObjectKeyExtractor;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.core.redis.upload.RedisOutcomeCollectionUploadingDescriptor;
@@ -29,24 +28,32 @@ import static lombok.AccessLevel.PROTECTED;
  * Контролер чтения поручений
  */
 @Slf4j
+@Component
 public class QuikProviderSecuritiesDataController
         extends AbstractQuikProviderDataController<QuikProviderSnapshotSecurityDataPublish, QuikSessionedSecurity, QuikSessionedSecuritiesPackage>
         implements DataObjectKeyExtractor<QuikSecurity> {
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikSecurityFromOriginalQuikSecurityConverter converter;
+    @NotNull
+    private final QuikSecurityFromOriginalQuikSecurityConverter converter;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private RedisOutcomeCollectionsUploader redisUploader;
+    @NotNull
+    private final RedisOutcomeCollectionsUploader redisUploader;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private RedisOutcomeCollectionsConfiguration redisConfiguration;
+    @NotNull
+    private final RedisOutcomeCollectionsConfiguration redisConfiguration;
 
-    public QuikProviderSecuritiesDataController() {
+    public QuikProviderSecuritiesDataController(
+            @NotNull final QuikSecurityFromOriginalQuikSecurityConverter converter,
+            @NotNull final RedisOutcomeCollectionsUploader redisUploader,
+            @NotNull final RedisOutcomeCollectionsConfiguration redisConfiguration
+    ) {
         super();
+        this.converter = converter;
+        this.redisUploader = redisUploader;
+        this.redisConfiguration = redisConfiguration;
         this.init(10, 500);
     }
 

@@ -1,8 +1,10 @@
 package ru.gx.fin.gate.quik.provider;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 import ru.gx.core.settings.StandardSettingsController;
 import ru.gx.core.settings.UnknownApplicationSettingException;
 import ru.gx.fin.gate.quik.config.ConfigurationPropertiesQuik;
@@ -12,15 +14,12 @@ import javax.annotation.PostConstruct;
 import static lombok.AccessLevel.PROTECTED;
 
 @Slf4j
+@RequiredArgsConstructor
+@Component
 public class QuikProviderSettingsContainer {
     @Getter(PROTECTED)
     @NotNull
     private final StandardSettingsController standardSettingsController;
-
-    public QuikProviderSettingsContainer(@NotNull final StandardSettingsController standardSettingsController) {
-        super();
-        this.standardSettingsController = standardSettingsController;
-    }
 
     @PostConstruct
     public void init() throws UnknownApplicationSettingException {

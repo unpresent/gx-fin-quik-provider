@@ -1,10 +1,13 @@
 package ru.gx.fin.gate.quik.provider;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 import ru.gx.core.simpleworker.SimpleWorker;
 import ru.gx.core.simpleworker.SimpleWorkerOnIterationExecuteEvent;
 import ru.gx.core.simpleworker.SimpleWorkerOnStartingExecuteEvent;
@@ -21,32 +24,34 @@ import java.util.List;
 import static lombok.AccessLevel.PROTECTED;
 
 @Slf4j
+@RequiredArgsConstructor
+@Component
 public class QuikProvider {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields">
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderSettingsContainer settings;
+    @NotNull
+    private final QuikProviderSettingsContainer settings;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private SimpleWorker simpleWorker;
+    @NotNull
+    private final SimpleWorker simpleWorker;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikConnector connector;
+    @NotNull
+    private final QuikConnector connector;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private List<ProviderDataController> dataControllers;
+    @NotNull
+    private final List<ProviderDataController> dataControllers;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderSessionStateDataController quikProviderSessionStateDataController;
+    @NotNull
+    private final QuikProviderSessionStateDataController quikProviderSessionStateDataController;
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderSecuritiesDataController quikProviderSecuritiesDataController;
+    @NotNull
+    private final QuikProviderSecuritiesDataController quikProviderSecuritiesDataController;
 
     // </editor-fold>
     // -----------------------------------------------------------------------------------------------------------------

@@ -1,13 +1,11 @@
 package ru.gx.fin.gate.quik.config;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import ru.gx.core.kafka.upload.AbstractKafkaOutcomeTopicsConfiguration;
 import ru.gx.core.kafka.upload.KafkaOutcomeTopicUploadingDescriptor;
 import ru.gx.fin.gate.quik.provider.channels.QuikProviderStreamAllTradesPackageDataPublishChannelApiV1;
@@ -18,30 +16,36 @@ import ru.gx.fin.gate.quik.provider.channels.QuikProviderStreamSecuritiesPackage
 import javax.annotation.PostConstruct;
 import java.util.Properties;
 
-import static lombok.AccessLevel.PROTECTED;
-
+@Configuration
 public class KafkaOutcomeTopicsConfiguration extends AbstractKafkaOutcomeTopicsConfiguration {
-    @Value(value = "${service.kafka.server}")
-    private String kafkaServer;
+    @NotNull
+    private final String kafkaServer;
 
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderStreamAllTradesPackageDataPublishChannelApiV1 allTradesChannelApi;
+    @NotNull
+    private final QuikProviderStreamAllTradesPackageDataPublishChannelApiV1 allTradesChannelApi;
 
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderStreamDealsPackageDataPublishChannelApiV1 dealsChannelApi;
+    @NotNull
+    private final QuikProviderStreamDealsPackageDataPublishChannelApiV1 dealsChannelApi;
 
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderStreamOrdersPackageDataPublishChannelApiV1 ordersChannelApi;
+    @NotNull
+    private final QuikProviderStreamOrdersPackageDataPublishChannelApiV1 ordersChannelApi;
 
-    @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikProviderStreamSecuritiesPackageDataPublishChannelApiV1 securitiesChannelApi;
+    @NotNull
+    private final QuikProviderStreamSecuritiesPackageDataPublishChannelApiV1 securitiesChannelApi;
 
-    public KafkaOutcomeTopicsConfiguration(@NotNull String configurationName) {
-        super(configurationName);
+    public KafkaOutcomeTopicsConfiguration(
+            @NotNull @Value("${service.kafka.server}") final String kafkaServer,
+            @NotNull QuikProviderStreamAllTradesPackageDataPublishChannelApiV1 allTradesChannelApi,
+            @NotNull QuikProviderStreamDealsPackageDataPublishChannelApiV1 dealsChannelApi,
+            @NotNull QuikProviderStreamOrdersPackageDataPublishChannelApiV1 ordersChannelApi,
+            @NotNull QuikProviderStreamSecuritiesPackageDataPublishChannelApiV1 securitiesChannelApi
+    ) {
+        super("kafka-outcome-config");
+        this.kafkaServer = kafkaServer;
+        this.allTradesChannelApi = allTradesChannelApi;
+        this.dealsChannelApi = dealsChannelApi;
+        this.ordersChannelApi = ordersChannelApi;
+        this.securitiesChannelApi = securitiesChannelApi;
     }
 
     @SuppressWarnings("unchecked")

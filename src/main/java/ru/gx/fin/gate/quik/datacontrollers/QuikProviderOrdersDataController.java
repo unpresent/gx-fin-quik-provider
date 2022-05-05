@@ -1,10 +1,10 @@
 package ru.gx.fin.gate.quik.datacontrollers;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 import ru.gx.core.data.NotAllowedObjectUpdateException;
 import ru.gx.fin.gate.quik.converters.QuikOrderFromOriginalQuikOrderConverter;
 import ru.gx.fin.gate.quik.errors.QuikConnectorException;
@@ -21,15 +21,17 @@ import static lombok.AccessLevel.PROTECTED;
  * Контролер чтения поручений
  */
 @Slf4j
+@Component
 public class QuikProviderOrdersDataController
         extends AbstractQuikProviderDataController<QuikProviderStreamOrdersPackageDataPublish, QuikOrder, QuikOrdersPackage> {
 
     @Getter(PROTECTED)
-    @Setter(value = PROTECTED, onMethod_ = @Autowired)
-    private QuikOrderFromOriginalQuikOrderConverter converter;
+    @NotNull
+    private final QuikOrderFromOriginalQuikOrderConverter converter;
 
-    public QuikProviderOrdersDataController() {
+    public QuikProviderOrdersDataController(@NotNull QuikOrderFromOriginalQuikOrderConverter converter) {
         super();
+        this.converter = converter;
         this.init(25, 500);
     }
 
