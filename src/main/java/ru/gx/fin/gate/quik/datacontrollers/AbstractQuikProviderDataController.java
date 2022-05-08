@@ -34,7 +34,7 @@ import static lombok.AccessLevel.PUBLIC;
  * @param <P> тип пакета данных
  */
 @Slf4j
-public abstract class AbstractQuikProviderDataController<M extends Message<? extends MessageHeader, ? extends MessageBody>, O extends QuikStandardDataObject, P extends QuikStandardDataPackage<O>>
+public abstract class AbstractQuikProviderDataController<M extends Message<? extends MessageBody>, O extends QuikStandardDataObject, P extends QuikStandardDataPackage<O>>
         implements ProviderDataController {
     // -----------------------------------------------------------------------------------------------------------------
     // <editor-fold desc="Fields & Properties">

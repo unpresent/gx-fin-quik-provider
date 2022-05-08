@@ -19,7 +19,7 @@ service:
       deals-v1.enabled: true
       all-trades-v1.enabled: true
   kafka:
-    server: localhost:9092
+    server: ${KAFKA_SERVER}
     outcome-topics:
       standard-uploader.enabled: true
   redis:

@@ -1,0 +1,23 @@
+#  docker-compose up -d
+version: '3.7'
+networks:
+  bridge-net:
+    driver: bridge
+    name: bridge-net
+
+services:
+  gx-fin-quik-provider:
+    container_name: gx-fin-quik-provider
+    image: gx-fin-quik-provider
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - bridge-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "7101:7101"
+    environment:
+      KAFKA_SERVER: host.docker.internal:9092
